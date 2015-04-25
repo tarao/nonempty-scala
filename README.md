@@ -1,4 +1,4 @@
-nonempty
+nonempty [![Build Status][travis-img]][travis]
 ========
 
 A trait to restrict a collection to be non-empty.
@@ -64,3 +64,6 @@ License
 
 - Copyright (C) INA Lintaro
 - MIT License
+
+[travis]: https://travis-ci.org/tarao/nonempty-scala
+[travis-img]: https://img.shields.io/travis/tarao/nonempty-scala.svg?branch=master&style=flat
