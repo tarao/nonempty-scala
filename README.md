@@ -1,4 +1,4 @@
-nonempty [![Build Status][travis-img]][travis]
+nonempty [![Build Status][travis-img]][travis] [![Maven Central][maven-img]][maven]
 ========
 
 A trait to restrict a collection to be non-empty.
@@ -67,3 +67,5 @@ License
 
 [travis]: https://travis-ci.org/tarao/nonempty-scala
 [travis-img]: https://img.shields.io/travis/tarao/nonempty-scala.svg?branch=master&style=flat
+[maven]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11
+[maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11/badge.svg?style=plastic
