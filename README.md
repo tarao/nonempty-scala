@@ -68,4 +68,4 @@ License
 [travis]: https://travis-ci.org/tarao/nonempty-scala
 [travis-img]: https://img.shields.io/travis/tarao/nonempty-scala.svg?branch=master&style=flat
 [maven]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11
-[maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11/badge.svg?style=plastic
+[maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11/badge.svg?style=flat
