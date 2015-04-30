@@ -3,6 +3,21 @@ nonempty [![Build Status][travis-img]][travis] [![Maven Central][maven-img]][mav
 
 A trait to restrict a collection to be non-empty.
 
+Getting started
+---------------
+
+Add dependency in your `build.sbt` as the following.
+
+```scala
+    libraryDependencies ++= Seq(
+      ...
+      "com.github.tarao" %% "nonempty" % "0.0.1"
+    )
+```
+
+The library is available on [Maven Central][maven].  Currently,
+supported Scala version is 2.11.
+
 Use case
 --------
 
