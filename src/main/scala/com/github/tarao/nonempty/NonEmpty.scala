@@ -3,7 +3,7 @@ package nonempty
 
 import scala.language.implicitConversions
 
-/** A trait for non-empty traversable collections.
+/** A value class for non-empty traversable collections.
   *
   * It is intended to be used as a parameter type to restrict a
   * collection value to be non-empty.  This restriction is guaranteed
@@ -21,13 +21,8 @@ import scala.language.implicitConversions
   * A value of type NonEmpty[T] can be used as a Traversable[T] by an
   * implicit conversion from NonEmpty[T] to Traversable[T].
   */
-sealed trait NonEmpty[+T] {
-  /** The original collection value wrapped in a NonEmpty[] */
-  def traversable: Traversable[T]
-
+class NonEmpty[+T] private (val traversable: Traversable[T]) extends AnyVal {
   override def toString = traversable.toString
-  override def hashCode = traversable.hashCode
-  override def equals(other: Any) = traversable.equals(other)
 }
 object NonEmpty {
   /** Convert a Traversable[T] to Option[NonEmpty[T]].
@@ -35,14 +30,13 @@ object NonEmpty {
     */
   implicit def fromTraversable[T](t: Traversable[T]): Option[NonEmpty[T]] =
     if (t.isEmpty) None
-    else Some(new NonEmpty[T]{ val traversable = t })
+    else Some(new NonEmpty[T](t))
 
   /** Automatically treat a NonEmpty[T] as a Traversable[T]. */
   implicit def toTraversable[T](ne: NonEmpty[T]): Traversable[T] =
     ne.traversable
 
   /** Directly create a NonEmpty[T] by passing no less than one parameter. */
-  def apply[T](head: T, elements: T*): NonEmpty[T] = new NonEmpty[T] {
-    val traversable = head +: Seq(elements: _*)
-  }
+  def apply[T](head: T, elements: T*): NonEmpty[T] =
+    new NonEmpty[T](head +: Seq(elements: _*))
 }

@@ -23,7 +23,9 @@ class NonEmptySpec extends UnitSpec {
   }
 
   def identical[T](ne: NonEmpty[T], t: Traversable[T]) {
-    ne should equal (t)
+    ne should equal(NonEmpty.fromTraversable(t).get)
+    val t1: Traversable[T] = ne
+    t1 should equal(t)
     ne.toString should equal (t.toString)
     ne.hashCode should equal (t.hashCode)
   }
@@ -74,7 +76,7 @@ class NonEmptySpec extends UnitSpec {
     }
 
     it("cannot be directly instantiated from outside") {
-      assertTypeError("val ne = new NonEmpty[Int] {}")
+      assertTypeError("val ne = new NonEmpty[Int](Seq(1))")
     }
 
     it("should behave like a Traversable[]") {
