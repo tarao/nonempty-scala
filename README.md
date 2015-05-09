@@ -1,7 +1,7 @@
 nonempty [![Build Status][travis-img]][travis] [![Maven Central][maven-img]][maven]
 ========
 
-A trait to restrict a collection to be non-empty.
+A value class to restrict a collection to be non-empty.
 
 Getting started
 ---------------
