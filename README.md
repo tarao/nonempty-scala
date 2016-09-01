@@ -1,4 +1,4 @@
-nonempty [![Build Status][travis-img]][travis] [![Maven Central][maven-img]][maven]
+nonempty [![Build Status][travis-img]][travis] [![Maven Central][maven-img]][maven] [![Scaladoc][javadoc-img]][javadoc]
 ========
 
 A value class to restrict a collection to be non-empty.
@@ -84,3 +84,5 @@ License
 [travis-img]: https://img.shields.io/travis/tarao/nonempty-scala.svg?branch=master&style=flat
 [maven]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11
 [maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11/badge.svg?style=flat
+[javadoc]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.11
+[javadoc-img]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.11.svg?label=scaladoc
