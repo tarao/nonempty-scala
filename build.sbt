@@ -20,6 +20,14 @@ lazy val nonempty = (project in file(".")).
       "-feature"
     ),
 
+    // Documentation
+    scalacOptions in (Compile, doc) ++= Seq(
+      "-sourcepath", baseDirectory.value.getAbsolutePath,
+      "-doc-source-url", "https://github.com/tarao/nonempty-scala/blob/master€{FILE_PATH}.scala",
+      "-implicits",
+      "-groups"
+    ),
+
     // Publishing
     publishMavenStyle := true,
     publishTo := {
