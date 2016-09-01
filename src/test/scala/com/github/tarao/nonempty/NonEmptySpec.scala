@@ -169,6 +169,26 @@ class NonEmptySpec extends FunSpec
       neC.toSeq(2) shouldBe ((3, 2))
     }
 
+    it("should return Iterable if the number of elements may reduce") {
+      val l1 = NonEmpty(Seq(1, 2), Seq(3, 4)).flatten
+      l1 shouldBe a[Iterable[_]]
+
+      val l2 = NonEmpty(Seq(), Seq()).flatten
+      l2 shouldBe a[Iterable[_]]
+
+      val l3 = NonEmpty(1, 2, 3).drop(1)
+      l3 shouldBe a[Iterable[_]]
+
+      val l4 = NonEmpty(1, 2, 3).drop(5)
+      l4 shouldBe a[Iterable[_]]
+
+      val l5 = NonEmpty(1, 2, 3).take(1)
+      l5 shouldBe a[Iterable[_]]
+
+      val l6 = NonEmpty(1, 2, 3).take(0)
+      l6 shouldBe a[Iterable[_]]
+    }
+
     it("should map to desired type by using breakOut") {
       val m: Map[Int, Int] = NonEmpty(1, 2, 3).map(i => i -> i*2)(breakOut)
       m shouldBe Map(1 -> 2, 2 -> 4, 3 -> 6)
