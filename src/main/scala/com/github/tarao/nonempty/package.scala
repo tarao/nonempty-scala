@@ -10,5 +10,5 @@ package object nonempty {
   def breakOut[From, T, To](implicit
     bf: CollCanBuildFrom[Nothing, T, To]
   ): CanBuildFrom[From, T, To] =
-    CanBuildFrom.OtherCanBuildFrom(scala.collection.breakOut)
+    CanBuildFrom.OtherCanBuildFrom(scala.collection.breakOut(bf))
 }
