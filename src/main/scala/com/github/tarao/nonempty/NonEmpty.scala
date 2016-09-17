@@ -84,7 +84,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def ++[B >: A, That](that: TraversableOnce[B])(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = bf(iterable.++(that)(bf.canBuildFrom))
+  ): That = iterable.++(that)(bf.canBuildFrom)
 
   /** Partitions this $coll into a map of ${coll}s according to some
     * discriminator function.
@@ -131,7 +131,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def map[B, That](f: A => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = bf(iterable.map(f)(bf.canBuildFrom))
+  ): That = iterable.map(f)(bf.canBuildFrom)
 
   /** Computes a prefix scan of the elements of the collection.
     *
@@ -148,7 +148,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def scan[B >: A, That](z: B)(op: (B, B) => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = bf(iterable.scan(z)(op)(bf.canBuildFrom))
+  ): That = iterable.scan(z)(op)(bf.canBuildFrom)
 
   /** Produces a collection containing cumulative results of applying the
     * operator going left to right.
@@ -166,7 +166,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def scanLeft[B, That](z: B)(op: (B, A) => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = bf(iterable.scanLeft(z)(op)(bf.canBuildFrom))
+  ): That = iterable.scanLeft(z)(op)(bf.canBuildFrom)
 
   /** Produces a collection containing cumulative results of applying
     * the operator going right to left.
@@ -189,7 +189,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def scanRight[B, That](z: B)(op: (A, B) => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = bf(iterable.scanRight(z)(op)(bf.canBuildFrom))
+  ): That = iterable.scanRight(z)(op)(bf.canBuildFrom)
 
   /** Converts this $coll of pairs into two collections of the first and
     * second half of each pair.
@@ -292,7 +292,7 @@ class NonEmpty[+A] private[nonempty] (
     thisElem: A1,
     thatElem: B
   )(implicit bf: CanBuildFrom[A, (A1, B), That]): That =
-    bf(iterable.zipAll(that, thisElem, thatElem)(bf.canBuildFrom))
+    iterable.zipAll(that, thisElem, thatElem)(bf.canBuildFrom)
 
   /** Zips this $coll with its indices.
     *
@@ -328,7 +328,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def zipWithIndex[A1 >: A, That](implicit
     bf: CanBuildFrom[A, (A1, Int), That]
-  ): That = bf(iterable.zipWithIndex(bf.canBuildFrom))
+  ): That = iterable.zipWithIndex(bf.canBuildFrom)
 }
 object NonEmpty {
   /** Convert a `Traversable[A]` to `Option[NonEmpty[A]]`.
