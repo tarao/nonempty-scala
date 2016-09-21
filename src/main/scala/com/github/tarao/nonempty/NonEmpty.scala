@@ -11,7 +11,7 @@ import scala.language.implicitConversions
   * statically, i.e., it is not possible to pass an empty collection
   * as a parameter of type `NonEmpty[]`.
   *
-  * The static safety is guaranteed by three reasons:
+  * The static safety is guaranteed by two reasons:
   *  1. there is no way to create a new instance of `NonEmpty[]` other
   *     than by factory methods provided by singleton object
   *     `NonEmpty`
@@ -21,7 +21,8 @@ import scala.language.implicitConversions
   *     - `NonEmpty.apply`, which takes at least one argument
   *
   * A value of type `NonEmpty[A]` can be used as a `Iterable[A]` by an
-  * implicit conversion from `NonEmpty[A]` to `Iterable[A]`.
+  * implicit conversion from `NonEmpty[A]` to `Iterable[A]`.  It also
+  * has some collection methods that preserve non-emptiness.
   *
   * @define thatinfo the class of the returned collection. Where possible,
   *   `That` is the same class as the current collection class `Repr`,
