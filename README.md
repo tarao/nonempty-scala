@@ -11,7 +11,7 @@ Add dependency in your `build.sbt` as the following.
 ```scala
     libraryDependencies ++= Seq(
       ...
-      "com.github.tarao" %% "nonempty" % "0.0.4"
+      "com.github.tarao" %% "nonempty" % "0.0.5"
     )
 ```
 
