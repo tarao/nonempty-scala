@@ -13,7 +13,7 @@ import scala.collection.mutable.Builder
   * @tparam To the type of the collection to be created.
   */
 @implicitNotFound(msg = "Cannot construct a collection of type ${To} with elements of type ${B} based on a collection of type ${A}.")
-sealed trait CanBuildFrom[-A, B, +To] extends Any {
+sealed trait CanBuildFrom[-A, -B, +To] extends Any {
   private[nonempty] def canBuildFrom: CollCanBuildFrom[Iterable[A], B, To]
 }
 object CanBuildFrom {
