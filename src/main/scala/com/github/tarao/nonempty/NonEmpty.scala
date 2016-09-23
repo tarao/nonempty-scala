@@ -12,7 +12,7 @@ import scala.language.implicitConversions
   * statically, i.e., it is not possible to pass an empty collection
   * as a parameter of type `NonEmpty[]`.
   *
-  * The static safety is guaranteed by two reasons:
+  * The static safety is guaranteed by three reasons:
   *  1. there is no way to create a new instance of `NonEmpty[]` other
   *     than by factory methods provided by singleton object
   *     `NonEmpty`
@@ -20,6 +20,8 @@ import scala.language.implicitConversions
   *     - an implicit conversion from `Iterable[A]` to
   *       `Option[NonEmpty[A]]` where an empty value will be None
   *     - `NonEmpty.apply`, which takes at least one argument
+  *  1. the implicit conversion copies the elements of a mutable
+  *     collection in case the collection drops the elements
   *
   * A value of type `NonEmpty[A]` can be used as a `Iterable[A]` by an
   * implicit conversion from `NonEmpty[A]` to `Iterable[A]`.  It also
@@ -341,7 +343,11 @@ object NonEmpty {
 
   /** Convert a `Iterable[A]` to `Option[NonEmpty[A]]`.
     *
-    * There is no way to directly convert a `Iterable[A]` into a `NonEmpty[A]`.
+    * There is no way to directly convert a `Iterable[A]` into a
+    * `NonEmpty[A]`.
+    *
+    * If you pass a mutable collection as `it`, its elements are
+    * copied.
     */
   implicit def fromIterable[A](it: Iterable[A]): Option[NonEmpty[A]] =
     Some(it).filter(_.nonEmpty).map { it => new NonEmpty(it match {
