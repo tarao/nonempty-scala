@@ -2,6 +2,7 @@ package com.github.tarao
 package nonempty
 
 import scala.collection.GenIterable
+import scala.collection.immutable.LinearSeq
 import scala.language.implicitConversions
 
 /** A value class for non-empty iterable collections.
@@ -343,8 +344,13 @@ object NonEmpty {
     * There is no way to directly convert a `Iterable[A]` into a `NonEmpty[A]`.
     */
   implicit def fromIterable[A](it: Iterable[A]): Option[NonEmpty[A]] =
-    if (it.isEmpty) None
-    else Some(new NonEmpty[A](it))
+    Some(it).filter(_.nonEmpty).map { it => new NonEmpty(it match {
+      case _: IndexedSeq[_] => it.toIndexedSeq
+      case _: LinearSeq[_] => it
+      case _: Set[_] => it
+      case _: Map[_, _] => it
+      case _ => it.toList
+    }) }
 
   /** Treat a `NonEmpty[A]` as a `Iterable[A]`. */
   implicit def toIterable[A](ne: NonEmpty[A]): Iterable[A] = ne.iterable
