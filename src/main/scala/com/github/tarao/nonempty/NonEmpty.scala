@@ -352,9 +352,7 @@ object NonEmpty {
   implicit def fromIterable[A](it: Iterable[A]): Option[NonEmpty[A]] =
     Some(it).filter(_.nonEmpty).map { it => new NonEmpty(it match {
       case _: IndexedSeq[_] => it.toIndexedSeq
-      case _: LinearSeq[_] => it
-      case _: Set[_] => it
-      case _: Map[_, _] => it
+      case _: LinearSeq[_] | _: Set[_] | _: Map[_, _] => it
       case _ => it.toList
     }) }
 
