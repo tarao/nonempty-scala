@@ -83,22 +83,249 @@ class NonEmptySpec extends FunSpec
       it should behave like iterable (NonEmpty(1, 2, 3))
     }
 
-    it("should be identical to its Iterable[] counterpart") {
-      val t1: Iterable[Int] = Seq(1)
-      val ne1: Option[NonEmpty[Int]] = t1
-      it should behave like identical (ne1.get, t1)
+    it("should be identical to its immutable Iterable[] counterpart") {
+      locally {
+        val t1: Iterable[Int] = List(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
 
-      val t2: Iterable[Int] = Seq(1, 2, 3)
-      val ne2: Option[NonEmpty[Int]] = t2
-      it should behave like identical (ne2.get, t2)
+        val t2: Iterable[Int] = List(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
 
-      val t3: Iterable[Int] = ArrayBuffer(1)
-      val ne3: Option[NonEmpty[Int]] = t3
-      it should behave like identical (ne3.get, t3)
+      locally {
+        val t1: Iterable[Int] = scala.collection.immutable.Stream(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
 
-      val t4: Iterable[Int] = ArrayBuffer(1, 2, 3)
-      val ne4: Option[NonEmpty[Int]] = t4
-      it should behave like identical (ne4.get, t4)
+        val t2: Iterable[Int] = scala.collection.immutable.Stream(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = scala.collection.immutable.Queue(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = scala.collection.immutable.Queue(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = scala.collection.immutable.Stack(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = scala.collection.immutable.Stack(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = Vector(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = Vector(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = 1 to 1
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = 1 to 3
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = Set(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = Set(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = scala.collection.immutable.HashSet(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = scala.collection.immutable.HashSet(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = scala.collection.immutable.SortedSet(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = scala.collection.immutable.SortedSet(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = scala.collection.immutable.BitSet(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = scala.collection.immutable.BitSet(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[Int] = scala.collection.immutable.ListSet(1)
+        val ne1: Option[NonEmpty[Int]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[Int] = scala.collection.immutable.ListSet(1, 2, 3)
+        val ne2: Option[NonEmpty[Int]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[(Int, String)] = Map(1 -> "foo")
+        val ne1: Option[NonEmpty[(Int, String)]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[(Int, String)] = Map(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val ne2: Option[NonEmpty[(Int, String)]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[(Int, String)] = scala.collection.immutable.HashMap(1 -> "foo")
+        val ne1: Option[NonEmpty[(Int, String)]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[(Int, String)] = scala.collection.immutable.HashMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val ne2: Option[NonEmpty[(Int, String)]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[(Int, String)] = scala.collection.immutable.SortedMap(1 -> "foo")
+        val ne1: Option[NonEmpty[(Int, String)]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[(Int, String)] = scala.collection.immutable.SortedMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val ne2: Option[NonEmpty[(Int, String)]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+
+      locally {
+        val t1: Iterable[(Int, String)] = scala.collection.immutable.ListMap(1 -> "foo")
+        val ne1: Option[NonEmpty[(Int, String)]] = t1
+        it should behave like identical (ne1.get, t1)
+
+        val t2: Iterable[(Int, String)] = scala.collection.immutable.ListMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val ne2: Option[NonEmpty[(Int, String)]] = t2
+        it should behave like identical (ne2.get, t2)
+      }
+    }
+
+    it("should freeze a mutable collection") {
+      locally {
+        val t = scala.collection.mutable.MutableList(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.Stack(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.ArrayStack(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.PriorityQueue(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.ArraySeq(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.drop(3)
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.ArrayBuffer(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.ListBuffer(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.HashSet(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.BitSet(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.LinkedHashSet(1, 2, 3)
+        val ne: Option[NonEmpty[Int]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.HashMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val ne: Option[NonEmpty[(Int, String)]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.LinkedHashMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val ne: Option[NonEmpty[(Int, String)]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
+
+      locally {
+        val t = scala.collection.mutable.ListMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val ne: Option[NonEmpty[(Int, String)]] = t
+        t.clear()
+        ne.get.size shouldBe 3
+      }
     }
 
     it("should preserve the collection type as NonEmpty[]") {

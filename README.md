@@ -53,6 +53,10 @@ val Some(nonempty) = NonEmpty.fromIterable(Seq(1, 2, 3))
 val None = NonEmpty.fromIterable(Seq())
 ```
 
+If you pass a mutable collection to `NonEmpty.fromIterable` then the
+elements of the collection are copied.  Otherwise, `NonEmpty` holds
+the original (immutable) collection.
+
 ### Requring nonempty lists
 
 When you require an argument to be nonempty, then you just have to
