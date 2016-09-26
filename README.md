@@ -27,8 +27,8 @@ Type `NonEmpty[A]` denotes that it is a nonempty list whose elements
 are of type `A`.  There are only two ways to instantiate a
 `NonEmpty[A]`:
 
-- Calling `NonEmpty.apply`, which takes at least one argument, or
-- Calling `NonEmpty.fromIterable`, which returns `Option[NonEmpty[_]]`.
+- calling `NonEmpty.apply`, which takes at least one argument, or
+- calling `NonEmpty.fromIterable`, which returns `Option[NonEmpty[_]]`.
 
 For example, calling `NonEmpty.apply` with one or two arguments is
 legal but calling it with zero arguments is illegal.
@@ -115,7 +115,7 @@ instead.
 
 ```scala
 import com.github.tarao.nonempty.breakOut
-val m: Map[Int, Int] = NonEmpty(1, 2, 3).map(x => x * x)(breakOut)
+val m: Map[Int, Int] = NonEmpty(1, 2, 3).map(x => x -> x * x)(breakOut)
 ```
 
 ### Breaking nonemptiness
