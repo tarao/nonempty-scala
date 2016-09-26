@@ -76,7 +76,7 @@ requiresNonEmpty(NonEmpty(1, 2, 3))
 val s: Seq[Int] = ...
 val maybeEmpty = NonEmpty.fromIterable(s)
 maybeEmpty match {
-  case Some(nonempty) => requireNonEmpty(nonempty)
+  case Some(nonempty) => requiresNonEmpty(nonempty)
   case _              => ... /* do something else */
 }
 ```
