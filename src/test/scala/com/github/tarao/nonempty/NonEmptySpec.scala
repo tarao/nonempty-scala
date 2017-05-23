@@ -1,7 +1,7 @@
 package com.github.tarao
 package nonempty
 
-import org.scalatest.{FunSpec, Matchers, OptionValues, Inside, Inspectors}
+import org.scalatest.{FunSpec, Inside, Inspectors, Matchers, OptionValues}
 
 class NonEmptySpec extends FunSpec
     with Matchers with OptionValues with Inside with Inspectors {
@@ -68,10 +68,10 @@ class NonEmptySpec extends FunSpec
   describe("A value of NonEmpty") {
     it("can be constructed from a non-empty parameter list") {
       val ne1 = NonEmpty(1)
-      ne1 shouldBe a [NonEmpty[_]]
+      ne1.isInstanceOf[NonEmpty[_]] shouldBe true
 
       val ne2 = NonEmpty(1, 2, 3)
-      ne2 shouldBe a [NonEmpty[_]]
+      ne2.isInstanceOf[NonEmpty[_]] shouldBe true
     }
 
     it("cannot be constructed from an empty parameter list") {
@@ -330,67 +330,67 @@ class NonEmptySpec extends FunSpec
 
     it("should preserve the collection type as NonEmpty[]") {
       val ne1 = NonEmpty(1, 2, 3) ++ Seq(4)
-      ne1 shouldBe a[NonEmpty[_]]
+      ne1.isInstanceOf[NonEmpty[_]] shouldBe true
       ne1.toSeq shouldBe Seq(1, 2, 3, 4)
 
       val m2 = NonEmpty(1, 2, 3, 4, 5, 6).groupBy(_ % 2 == 0)
-      m2(true) shouldBe a[NonEmpty[_]]
+      m2(true).isInstanceOf[NonEmpty[_]] shouldBe true
       m2(true).toSeq shouldBe Seq(2, 4, 6)
-      m2(false) shouldBe a[NonEmpty[_]]
+      m2(false).isInstanceOf[NonEmpty[_]] shouldBe true
       m2(false).toSeq shouldBe Seq(1, 3, 5)
 
       val v3 = NonEmpty(1, 2, 3, 4, 5).grouped(2).toVector
-      v3(0) shouldBe a[NonEmpty[_]]
+      v3(0).isInstanceOf[NonEmpty[_]] shouldBe true
       v3(0).toSeq shouldBe Seq(1, 2)
-      v3(1) shouldBe a[NonEmpty[_]]
+      v3(1).isInstanceOf[NonEmpty[_]] shouldBe true
       v3(1).toSeq shouldBe Seq(3, 4)
-      v3(2) shouldBe a[NonEmpty[_]]
+      v3(2).isInstanceOf[NonEmpty[_]] shouldBe true
       v3(2).toSeq shouldBe Seq(5)
 
       val ne4 = NonEmpty(1, 2, 3).map(_ * 2)
-      ne4 shouldBe a[NonEmpty[_]]
+      ne4.isInstanceOf[NonEmpty[_]] shouldBe true
       ne4.toSeq shouldBe Seq(2, 4, 6)
 
       val ne5 = NonEmpty(1, 2, 3, 4).scan(0)((a, b) => a + b)
-      ne5 shouldBe a[NonEmpty[_]]
+      ne5.isInstanceOf[NonEmpty[_]] shouldBe true
       ne5.toSeq shouldBe Seq(0, 1, 3, 6, 10)
 
       val ne6 = NonEmpty(1, 2, 3, 4).scanLeft("0")((a, b) => a + b)
-      ne6 shouldBe a[NonEmpty[_]]
+      ne6.isInstanceOf[NonEmpty[_]] shouldBe true
       ne6.toSeq shouldBe Seq("0", "01", "012", "0123", "01234")
 
       val ne7 = NonEmpty(1, 2, 3, 4).scanRight("5")((a, b) => a + b)
-      ne7 shouldBe a[NonEmpty[_]]
+      ne7.isInstanceOf[NonEmpty[_]] shouldBe true
       ne7.toSeq shouldBe Seq("12345", "2345", "345", "45", "5")
 
       val ne8 = NonEmpty((1, "foo"), (2, "bar"), (3, "baz")).unzip
-      ne8._1 shouldBe a[NonEmpty[_]]
+      ne8._1.isInstanceOf[NonEmpty[_]] shouldBe true
       ne8._1.toSeq shouldBe Seq(1, 2, 3)
-      ne8._2 shouldBe a[NonEmpty[_]]
+      ne8._2.isInstanceOf[NonEmpty[_]] shouldBe true
       ne8._2.toSeq shouldBe Seq("foo", "bar", "baz")
 
       val ne9 = NonEmpty((1, "foo", 100), (2, "bar", 200), (3, "baz", 300)).unzip3
-      ne9._1 shouldBe a[NonEmpty[_]]
+      ne9._1.isInstanceOf[NonEmpty[_]] shouldBe true
       ne9._1.toSeq shouldBe Seq(1, 2, 3)
-      ne9._2 shouldBe a[NonEmpty[_]]
+      ne9._2.isInstanceOf[NonEmpty[_]] shouldBe true
       ne9._2.toSeq shouldBe Seq("foo", "bar", "baz")
-      ne9._3 shouldBe a[NonEmpty[_]]
+      ne9._3.isInstanceOf[NonEmpty[_]] shouldBe true
       ne9._3.toSeq shouldBe Seq(100, 200, 300)
 
       val neA = NonEmpty(1, 2, 3).zipAll(Seq("foo", "bar", "baz"), 0, "")
-      neA shouldBe a[NonEmpty[_]]
+      neA.isInstanceOf[NonEmpty[_]] shouldBe true
       neA.toSeq(0) shouldBe ((1, "foo"))
       neA.toSeq(1) shouldBe ((2, "bar"))
       neA.toSeq(2) shouldBe ((3, "baz"))
 
       val neB = NonEmpty(1, 2, 3).zipAll(Seq(), 0, "qux")
-      neB shouldBe a[NonEmpty[_]]
+      neB.isInstanceOf[NonEmpty[_]] shouldBe true
       neB.toSeq(0) shouldBe ((1, "qux"))
       neB.toSeq(1) shouldBe ((2, "qux"))
       neB.toSeq(2) shouldBe ((3, "qux"))
 
       val neC = NonEmpty(1, 2, 3).zipWithIndex
-      neC shouldBe a[NonEmpty[_]]
+      neC.isInstanceOf[NonEmpty[_]] shouldBe true
       neC.toSeq(0) shouldBe ((1, 0))
       neC.toSeq(1) shouldBe ((2, 1))
       neC.toSeq(2) shouldBe ((3, 2))
@@ -425,7 +425,7 @@ class NonEmptySpec extends FunSpec
   describe("Backward compatibility") {
     it("can be constructed from a traersable") {
       val Some(ne) = NonEmpty.fromTraversable(Seq(1, 2, 3))
-      ne shouldBe a[NonEmpty[_]]
+      ne.isInstanceOf[NonEmpty[_]] shouldBe true
       ne.toSeq shouldBe Seq(1, 2, 3)
     }
   }
