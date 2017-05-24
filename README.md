@@ -11,12 +11,12 @@ Add dependency in your `build.sbt` as the following.
 ```scala
     libraryDependencies ++= Seq(
       ...
-      "com.github.tarao" %% "nonempty" % "0.0.6"
+      "com.github.tarao" %% "nonempty" % "0.0.7"
     )
 ```
 
 The library is available on [Maven Central][maven].  Currently,
-supported Scala version is 2.11.
+supported Scala version is 2.11 and 2.12.
 
 Use case
 --------
@@ -103,7 +103,7 @@ from `Iterable[A]` to `Option[NonEmpty[A]]` for any `A`.
 ### Preserving nonemptiness
 
 Some collection methods such as `map()` preserve nonemptiness.  The
-methods are [those which are directly defined in `class NonEmpty[]`](http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.11#com.github.tarao.nonempty.NonEmpty).
+methods are [those which are directly defined in `class NonEmpty[]`](http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12/com/github/tarao/nonempty/NonEmpty.html).
 
 ```scala
 val nonempty: NonEmpty[Int] = NonEmpty(1, 2, 3).map(x => x * x)
@@ -146,7 +146,7 @@ License
 
 [travis]: https://travis-ci.org/tarao/nonempty-scala
 [travis-img]: https://img.shields.io/travis/tarao/nonempty-scala.svg?branch=master&style=flat
-[maven]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11
-[maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.11/badge.svg?style=flat
-[javadoc]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.11
-[javadoc-img]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.11.svg?label=scaladoc
+[maven]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.12
+[maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.12/badge.svg?style=flat
+[javadoc]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12
+[javadoc-img]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12.svg?label=scaladoc

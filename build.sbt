@@ -5,7 +5,7 @@ lazy val nonempty = (project in file(".")).
   settings(
     name := "nonempty",
     organization := "com.github.tarao",
-    version := "0.0.7-SNAPSHOT",
+    version := "0.0.7",
     scalaVersion := "2.11.11",
     crossScalaVersions := Seq("2.11.11", "2.12.2"),
 
