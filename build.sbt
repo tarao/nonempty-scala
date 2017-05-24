@@ -5,12 +5,13 @@ lazy val nonempty = (project in file(".")).
   settings(
     name := "nonempty",
     organization := "com.github.tarao",
-    version := "0.0.6",
-    scalaVersion := "2.11.8",
+    version := "0.0.7-SNAPSHOT",
+    scalaVersion := "2.11.11",
+    crossScalaVersions := Seq("2.11.11", "2.12.2"),
 
     // Depenency
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+      "org.scalatest" %% "scalatest" % "3.0.3" % "test"
     ),
 
     // Compilation
@@ -19,6 +20,14 @@ lazy val nonempty = (project in file(".")).
       "-deprecation",
       "-feature"
     ),
+
+    // Use the new optimizer for 2.12
+    scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 12)) => Seq("-opt:l:project")
+        case _ => Seq()
+      }
+    },
 
     // Documentation
     scalacOptions in (Compile, doc) ++= Seq(
