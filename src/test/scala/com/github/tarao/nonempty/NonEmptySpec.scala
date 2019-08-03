@@ -1,7 +1,11 @@
 package com.github.tarao
 package nonempty
 
+import eu.timepit.refined
+import eu.timepit.refined.refineV
+import eu.timepit.refined.api.{Refined, RefType}
 import org.scalatest.{FunSpec, Inside, Inspectors, Matchers, OptionValues}
+import scala.language.higherKinds
 
 class NonEmptySpec extends FunSpec
     with Matchers with OptionValues with Inside with Inspectors {
@@ -427,6 +431,23 @@ class NonEmptySpec extends FunSpec
       val Some(ne) = NonEmpty.fromTraversable(Seq(1, 2, 3))
       ne.isInstanceOf[NonEmpty[_]] shouldBe true
       ne.toSeq shouldBe Seq(1, 2, 3)
+    }
+  }
+
+  describe("Compatibility with refined") {
+    def compatibleWithRefined[A, L[X] <: Traversable[X], F[_, _]](
+      ne: F[L[A], refined.collection.NonEmpty]
+    )(implicit rt: RefType[F]): Unit = { /* ok */ }
+
+    it("should be compatible with refined") {
+      val ne = NonEmpty(1)
+      it should behave like compatibleWithRefined(ne)
+
+      val Right(nel) = refineV[refined.collection.NonEmpty](Seq(1, 2, 3))
+      val ne1 = NonEmpty.fromRefined(nel)
+      val ne2: NonEmpty[Int] = nel
+
+      val nel1: refined.api.Refined[Iterable[Int], refined.collection.NonEmpty] = ne
     }
   }
 }
