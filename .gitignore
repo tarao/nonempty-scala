@@ -12,5 +12,8 @@ src_managed/
 project/boot/
 project/plugins/project/
 
+.bloop
+.metals
+
 # InteliJ
 .idea
