@@ -25,7 +25,10 @@ lazy val nonempty = (project in file(".")).
     // Use the new optimizer for 2.12
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 12)) => Seq("-opt:l:project")
+        case Some((2, 12)) => Seq(
+          "-opt:l:inline",
+          "-opt-inline-from", "com.github.tarao.nonempty.**",
+        )
         case _ => Seq()
       }
     },
