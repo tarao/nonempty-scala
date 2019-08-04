@@ -1,9 +1,13 @@
 package com.github.tarao
 package nonempty
 
+import eu.timepit.refined
+import eu.timepit.refined.api.RefType
 import scala.collection.GenIterable
 import scala.collection.immutable.LinearSeq
+import scala.language.higherKinds
 import scala.language.implicitConversions
+import scala.reflect.macros.blackbox
 
 /** A value class for non-empty iterable collections.
   *
@@ -45,10 +49,10 @@ import scala.language.implicitConversions
   * @define Coll `NonEmpty`
   * @define coll collection
   */
-class NonEmpty[+A] private[nonempty] (
-  private val iterable: Iterable[A]
-) extends AnyVal {
-  override def toString = iterable.toString
+class NonEmpty[+A] private[nonempty] (private[nonempty] val value: Iterable[A])
+    extends AnyVal
+    with NonEmpty.Refined[Iterable[A], refined.collection.NonEmpty] {
+  override def toString = value.toString
 
   /** Returns a new $coll containing the elements from the left hand
     *  operand followed by the elements from the right hand
@@ -88,7 +92,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def ++[B >: A, That](that: TraversableOnce[B])(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = iterable.++(that)(bf.canBuildFrom)
+  ): That = value.++(that)(bf.canBuildFrom)
 
   /** Partitions this $coll into a map of ${coll}s according to some
     * discriminator function.
@@ -104,7 +108,7 @@ class NonEmpty[+A] private[nonempty] (
     *              for which `f(x)` equals `k`.
     */
   def groupBy[K](f: A => K): scala.collection.immutable.Map[K, NonEmpty[A]] =
-    iterable.groupBy(f).mapValues(new NonEmpty(_))
+    value.groupBy(f).mapValues(new NonEmpty(_))
 
   /** Partitions elements in fixed size ${coll}s.
     *
@@ -114,7 +118,7 @@ class NonEmpty[+A] private[nonempty] (
     *         divide evenly.
     */
   def grouped(size: Int): Iterator[NonEmpty[A]] =
-    iterable.grouped(size).map(new NonEmpty(_))
+    value.grouped(size).map(new NonEmpty(_))
 
   /** Builds a new collection by applying a function to all elements of
     * this $coll.
@@ -135,7 +139,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def map[B, That](f: A => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = iterable.map(f)(bf.canBuildFrom)
+  ): That = value.map(f)(bf.canBuildFrom)
 
   /** Computes a prefix scan of the elements of the collection.
     *
@@ -152,7 +156,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def scan[B >: A, That](z: B)(op: (B, B) => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = iterable.scan(z)(op)(bf.canBuildFrom)
+  ): That = value.scan(z)(op)(bf.canBuildFrom)
 
   /** Produces a collection containing cumulative results of applying the
     * operator going left to right.
@@ -170,7 +174,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def scanLeft[B, That](z: B)(op: (B, A) => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = iterable.scanLeft(z)(op)(bf.canBuildFrom)
+  ): That = value.scanLeft(z)(op)(bf.canBuildFrom)
 
   /** Produces a collection containing cumulative results of applying
     * the operator going right to left.
@@ -193,7 +197,7 @@ class NonEmpty[+A] private[nonempty] (
     */
   def scanRight[B, That](z: B)(op: (A, B) => B)(implicit
     bf: CanBuildFrom[A, B, That]
-  ): That = iterable.scanRight(z)(op)(bf.canBuildFrom)
+  ): That = value.scanRight(z)(op)(bf.canBuildFrom)
 
   /** Converts this $coll of pairs into two collections of the first and
     * second half of each pair.
@@ -217,7 +221,7 @@ class NonEmpty[+A] private[nonempty] (
   def unzip[A1, A2](implicit
     asPair: A => (A1, A2)
   ): (NonEmpty[A1], NonEmpty[A2]) = {
-    val (a1, a2) = iterable.unzip(asPair)
+    val (a1, a2) = value.unzip(asPair)
     (new NonEmpty(a1), new NonEmpty(a2))
   }
 
@@ -246,7 +250,7 @@ class NonEmpty[+A] private[nonempty] (
   def unzip3[A1, A2, A3](implicit
     asTriple: A => (A1, A2, A3)
   ): (NonEmpty[A1], NonEmpty[A2], NonEmpty[A3]) = {
-    val (a1, a2, a3) = iterable.unzip3(asTriple)
+    val (a1, a2, a3) = value.unzip3(asTriple)
     (new NonEmpty(a1), new NonEmpty(a2), new NonEmpty(a3))
   }
 
@@ -296,7 +300,7 @@ class NonEmpty[+A] private[nonempty] (
     thisElem: A1,
     thatElem: B
   )(implicit bf: CanBuildFrom[A, (A1, B), That]): That =
-    iterable.zipAll(that, thisElem, thatElem)(bf.canBuildFrom)
+    value.zipAll(that, thisElem, thatElem)(bf.canBuildFrom)
 
   /** Zips this $coll with its indices.
     *
@@ -332,9 +336,16 @@ class NonEmpty[+A] private[nonempty] (
     */
   def zipWithIndex[A1 >: A, That](implicit
     bf: CanBuildFrom[A, (A1, Int), That]
-  ): That = iterable.zipWithIndex(bf.canBuildFrom)
+  ): That = value.zipWithIndex(bf.canBuildFrom)
 }
 object NonEmpty {
+  private[this] def unsafeApply[A](it: Iterable[A]): NonEmpty[A] =
+    new NonEmpty(it match {
+      case _: IndexedSeq[_] => it.toIndexedSeq
+      case _: LinearSeq[_] | _: Set[_] | _: Map[_, _] => it
+      case _ => it.toList
+    })
+
   /** Convert a `Traversable[A]` to `Option[NonEmpty[A]]`.
     *
     * There is no way to directly convert a `Traversable[A]` into a `NonEmpty[A]`.
@@ -350,16 +361,57 @@ object NonEmpty {
     * copied.
     */
   implicit def fromIterable[A](it: Iterable[A]): Option[NonEmpty[A]] =
-    Some(it).filter(_.nonEmpty).map { it => new NonEmpty(it match {
-      case _: IndexedSeq[_] => it.toIndexedSeq
-      case _: LinearSeq[_] | _: Set[_] | _: Map[_, _] => it
-      case _ => it.toList
-    }) }
+    Some(it).filter(_.nonEmpty).map(unsafeApply(_))
 
   /** Treat a `NonEmpty[A]` as a `Iterable[A]`. */
-  implicit def toIterable[A](ne: NonEmpty[A]): Iterable[A] = ne.iterable
+  implicit def toIterable[A](ne: NonEmpty[A]): Iterable[A] = ne.value
 
   /** Directly create a `NonEmpty[A]` by passing no less than one parameter. */
   def apply[A](head: A, elements: A*): NonEmpty[A] =
     new NonEmpty[A](head +: Seq(elements: _*))
+
+  // Compatibility with refined
+
+  implicit def fromRefined[A, L[X] <: Iterable[X], F[_, _]](
+    it: F[L[A], refined.collection.NonEmpty]
+  )(implicit
+    rt: RefType[F]
+  ): NonEmpty[A] = unsafeApply(rt.unwrap(it))
+
+  implicit def toRefined[A](
+    ne: NonEmpty[A]
+  ): refined.api.Refined[Iterable[A], refined.collection.NonEmpty] =
+    implicitly[RefType[refined.api.Refined]].unsafeWrap(ne.value)
+
+  sealed trait Refined[+T, P] extends Any {
+    private[nonempty] def value: T
+  }
+  object Refined {
+    final class Impl[+T, P] private[nonempty] (val value: T)
+        extends Refined[T, P]
+
+    def unsafeApply[T, P](t: T): Refined[T, P] = new Impl(t)
+  }
+
+  implicit val refinedRefType: RefType[Refined] =
+    new RefType[Refined] {
+      override def unsafeWrap[T, P](t: T): Refined[T, P] =
+        Refined.unsafeApply(t)
+
+      override def unwrap[T](tp: Refined[T, _]): T =
+        tp.value
+
+      override def unsafeRewrap[T, A, B](ta: Refined[T, A]): Refined[T, B] =
+        Refined.unsafeApply(ta.value)
+
+      override def unsafeWrapM[T: c.WeakTypeTag, P: c.WeakTypeTag](
+          c: blackbox.Context
+      )(t: c.Expr[T]): c.Expr[Refined[T, P]] =
+        c.universe.reify(Refined.unsafeApply(t.splice))
+
+      override def unsafeRewrapM[T: c.WeakTypeTag, A: c.WeakTypeTag, B: c.WeakTypeTag](
+          c: blackbox.Context
+      )(ta: c.Expr[Refined[T, A]]): c.Expr[Refined[T, B]] =
+        c.universe.reify(Refined.unsafeApply(ta.splice.value))
+    }
 }
