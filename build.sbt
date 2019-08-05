@@ -22,7 +22,6 @@ lazy val nonempty = (project in file(".")).
       "-feature"
     ),
 
-    // Use the new optimizer for 2.12
     scalacOptions ++= Seq(
       "-opt:l:inline",
       "-opt-inline-from", "com.github.tarao.nonempty.**",

@@ -147,7 +147,7 @@ License
 
 [travis]: https://travis-ci.org/tarao/nonempty-scala
 [travis-img]: https://img.shields.io/travis/tarao/nonempty-scala.svg?branch=master&style=flat
-[maven]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.12
-[maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.12/badge.svg?style=flat
-[javadoc]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12
-[javadoc-img]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12.svg?label=scaladoc
+[maven]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.13
+[maven-img]: https://maven-badges.herokuapp.com/maven-central/com.github.tarao/nonempty_2.13/badge.svg?style=flat
+[javadoc]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.13
+[javadoc-img]: http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.13.svg?label=scaladoc
