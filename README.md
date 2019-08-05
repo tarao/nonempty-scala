@@ -8,6 +8,8 @@ Getting started
 
 Add dependency in your `build.sbt` as the following.
 
+For Scala 2.11 and 2.12 :
+
 ```scala
     libraryDependencies ++= Seq(
       ...
@@ -15,8 +17,16 @@ Add dependency in your `build.sbt` as the following.
     )
 ```
 
-The library is available on [Maven Central][maven].  Currently,
-supported Scala version is 2.11 and 2.12.
+For Scala 2.13 :
+
+```scala
+    libraryDependencies ++= Seq(
+      ...
+      "com.github.tarao" %% "nonempty" % "0.1.0"
+    )
+```
+
+The library is available on [Maven Central][maven].
 
 Use case
 --------
@@ -103,19 +113,10 @@ from `Iterable[A]` to `Option[NonEmpty[A]]` for any `A`.
 ### Preserving nonemptiness
 
 Some collection methods such as `map()` preserve nonemptiness.  The
-methods are [those which are directly defined in `class NonEmpty[]`](http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12/com/github/tarao/nonempty/NonEmpty.html).
+methods are [those which are directly defined in `class NonEmpty[_]`](http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12/com/github/tarao/nonempty/NonEmpty.html).
 
 ```scala
 val nonempty: NonEmpty[Int] = NonEmpty(1, 2, 3).map(x => x * x)
-```
-
-Note that if you wish to use `scala.collection.breakOut` for these
-methods, you actually need to use `com.github.tarao.nonempty.breakOut`
-instead.
-
-```scala
-import com.github.tarao.nonempty.breakOut
-val m: Map[Int, Int] = NonEmpty(1, 2, 3).map(x => x -> x * x)(breakOut)
 ```
 
 ### Breaking nonemptiness

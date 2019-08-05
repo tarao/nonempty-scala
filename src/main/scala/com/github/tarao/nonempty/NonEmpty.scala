@@ -3,7 +3,8 @@ package nonempty
 
 import eu.timepit.refined
 import eu.timepit.refined.api.RefType
-import scala.collection.GenIterable
+import scala.annotation.unchecked.uncheckedVariance
+import scala.collection.immutable
 import scala.collection.immutable.LinearSeq
 import scala.language.higherKinds
 import scala.language.implicitConversions
@@ -31,21 +32,23 @@ import scala.reflect.macros.blackbox
   * implicit conversion from `NonEmpty[A]` to `Iterable[A]`.  It also
   * has some collection methods that preserve non-emptiness.
   *
-  * @define thatinfo the class of the returned collection. Where possible,
-  *   `That` is the same class as the current collection class `Repr`,
-  *   but this depends on the element type `B` being admissible for
-  *   that class, which means that an implicit instance of type
-  *   `CanBuildFrom[Repr, B, That]` is found.
-  * @define bfinfo an implicit value of class `CanBuildFrom` which determines
-  *   the result class `That` from the current representation type
-  *   `Repr` and and the new element type `B`.
   * @define orderDependent
   *
-  *   Note: might return different results for different runs, unless the
-  *   underlying collection type is ordered.
+  *              Note: might return different results for different
+  *              runs, unless the underlying collection type is
+  *              ordered.
   * @define willNotTerminateInf
   *
-  *   Note: will not terminate for infinite-sized collections.
+  *              Note: will not terminate for infinite-sized collections.
+  * @define willForceEvaluation
+  *              Note: Even when applied to a view or a lazy
+  *              collection it will always force the elements.
+  * @define consumesAndproducesiterator
+  *              After calling this method, one should discard the
+  *              iterator it was called on, and use only the iterator
+  *              that was returned. Using the old iterator is
+  *              undefined, subject to change, and may result in
+  *              changes to the new iterator as well.
   * @define Coll `NonEmpty`
   * @define coll collection
   */
@@ -55,44 +58,20 @@ class NonEmpty[+A] private[nonempty] (private[nonempty] val value: Iterable[A])
   override def toString = value.toString
 
   /** Returns a new $coll containing the elements from the left hand
-    *  operand followed by the elements from the right hand
-    *  operand. The element type of the $coll is the most specific
-    *  superclass encompassing the element types of the two operands.
+    * operand followed by the elements from the right hand
+    * operand. The element type of the $coll is the most specific
+    * superclass encompassing the element types of the two operands.
     *
-    * @param that   the traversable to append.
-    * @tparam B     the element type of the returned collection.
-    * @tparam That  $thatinfo
-    * @param bf     $bfinfo
-    * @return       a new collection of type `That` which contains all elements
-    *               of this $coll followed by all elements of `that`.
-    *
-    * @usecase def ++[B](that: TraversableOnce[B]): $Coll[B]
-    *   @inheritdoc
-    *
-    *   Example:
-    *   {{{
-    *     scala> val a = NonEmpty(1)
-    *     a: NonEmpty[Int] = List(1)
-    *
-    *     scala> val b = NonEmpty(2)
-    *     b: NonEmpty[Int] = List(2)
-    *
-    *     scala> val c = a ++ b
-    *     c: NonEmpty[Int] = List(1, 2)
-    *
-    *     scala> val d = NonEmpty('a')
-    *     d: NonEmpty[Char] = List(a)
-    *
-    *     scala> val e = c ++ d
-    *     e: NonEmpty[AnyVal] = List(1, 2, a)
-    *   }}}
-    *
-    *   @return       a new $coll which contains all elements of this $coll
-    *                 followed by all elements of `that`.
+    * @param suffix  the iterable to append.
+    * @tparam B      the element type of the returned collection.
+    * @return        a new $coll which contains all elements
+    *                of this $coll followed by all elements of `suffix`.
     */
-  def ++[B >: A, That](that: TraversableOnce[B])(implicit
-    bf: CanBuildFrom[A, B, That]
-  ): That = value.++(that)(bf.canBuildFrom)
+  def concat[B >: A](suffix: IterableOnce[B]): NonEmpty[B] =
+    new NonEmpty(value.concat(suffix))
+
+  /** Alias for `concat` */
+  @inline def ++[B >: A](suffix: IterableOnce[B]): NonEmpty[B] = concat(suffix)
 
   /** Partitions this $coll into a map of ${coll}s according to some
     * discriminator function.
@@ -107,8 +86,33 @@ class NonEmpty[+A] private[nonempty] (private[nonempty] val value: Iterable[A])
     *              That is, every key `k` is bound to a $coll of those elements `x`
     *              for which `f(x)` equals `k`.
     */
-  def groupBy[K](f: A => K): scala.collection.immutable.Map[K, NonEmpty[A]] =
-    value.groupBy(f).mapValues(new NonEmpty(_))
+  def groupBy[K](f: A => K): immutable.Map[K, NonEmpty[A]] =
+    value.groupBy(f).view.mapValues(new NonEmpty(_)).to(Map)
+
+  /**
+    * Partitions this $coll into a map of ${coll}s according to a
+    * discriminator function `key`.  Each element in a group is
+    * transformed into a value of type `B` using the `value` function.
+    *
+    * It is equivalent to `groupBy(key).mapValues(_.map(f))`, but more
+    * efficient.
+    *
+    * {{{
+    *   case class User(name: String, age: Int)
+    *
+    *   def namesByAge(users: Seq[User]): Map[Int, Seq[String]] =
+    *     users.groupMap(_.age)(_.name)
+    * }}}
+    *
+    * $willForceEvaluation
+    *
+    * @param key the discriminator function
+    * @param f the element transformation function
+    * @tparam K the type of keys returned by the discriminator function
+    * @tparam B the type of values returned by the transformation function
+    */
+  def groupMap[K, B](key: A => K)(f: A => B): immutable.Map[K, NonEmpty[B]] =
+    value.groupMap(key)(f).view.mapValues(new NonEmpty(_)).to(Map)
 
   /** Partitions elements in fixed size ${coll}s.
     *
@@ -120,84 +124,62 @@ class NonEmpty[+A] private[nonempty] (private[nonempty] val value: Iterable[A])
   def grouped(size: Int): Iterator[NonEmpty[A]] =
     value.grouped(size).map(new NonEmpty(_))
 
-  /** Builds a new collection by applying a function to all elements of
-    * this $coll.
+  /** Builds a new $coll by applying a function to all elements of this
+    * $coll.
     *
-    * @param f      the function to apply to each element.
-    * @tparam B     the element type of the returned collection.
-    * @tparam That  $thatinfo
-    * @param bf     $bfinfo
-    * @return       a new collection of type `That` resulting from applying
-    *               the given function `f` to each element of this
-    *               $coll and collecting the results.
-    *
-    * @usecase def map[B](f: A => B): $Coll[B]
-    *   @inheritdoc
-    *   @return       a new $coll resulting from applying the given function
-    *                 `f` to each element of this $coll and collecting
-    *                 the results.
+    *  @param f      the function to apply to each element.
+    *  @tparam B     the element type of the returned $coll.
+    *  @return       a new $coll resulting from applying the given function
+    *                `f` to each element of this $coll and collecting the results.
+    *  @note    Reuse: $consumesAndProducesIterator
     */
-  def map[B, That](f: A => B)(implicit
-    bf: CanBuildFrom[A, B, That]
-  ): That = value.map(f)(bf.canBuildFrom)
+  def map[B](f: A => B): NonEmpty[B] = new NonEmpty(value.map(f))
 
   /** Computes a prefix scan of the elements of the collection.
     *
-    * Note: The neutral element `z` may be applied more than once.
+    *  Note: The neutral element `z` may be applied more than once.
     *
-    * @tparam B         element type of the resulting collection
-    * @tparam That      type of the resulting collection
-    * @param z          neutral element for the operator `op`
-    * @param op         the associative operator for the scan
-    * @param bf         combiner factory which provides a combiner
+    *  @tparam B         element type of the resulting collection
+    *  @param z          neutral element for the operator `op`
+    *  @param op         the associative operator for the scan
     *
-    * @return           a new $coll containing the prefix scan of the elements
-    *                    in this $coll
+    *  @return           a new $coll containing the prefix scan of the elements in this $coll
     */
-  def scan[B >: A, That](z: B)(op: (B, B) => B)(implicit
-    bf: CanBuildFrom[A, B, That]
-  ): That = value.scan(z)(op)(bf.canBuildFrom)
+  def scan[B >: A](z: B)(op: (B, B) => B): NonEmpty[B] =
+    new NonEmpty(value.scan(z)(op))
 
-  /** Produces a collection containing cumulative results of applying the
-    * operator going left to right.
+  /** Produces a $coll containing cumulative results of applying the
+    * operator going left to right, including the initial value.
     *
-    * $willNotTerminateInf
-    * $orderDependent
+    *  $willNotTerminateInf
+    *  $orderDependent
     *
-    * @tparam B      the type of the elements in the resulting collection
-    * @tparam That   the actual type of the resulting collection
-    * @param z       the initial value
-    * @param op      the binary operator applied to the intermediate result
-    *                and the element
-    * @param bf      $bfinfo
-    * @return        collection with intermediate results
+    *  @tparam B      the type of the elements in the resulting collection
+    *  @param z       the initial value
+    *  @param op      the binary operator applied to the intermediate result and the element
+    *  @return        collection with intermediate results
+    *  @note          Reuse: $consumesAndProducesIterator
     */
-  def scanLeft[B, That](z: B)(op: (B, A) => B)(implicit
-    bf: CanBuildFrom[A, B, That]
-  ): That = value.scanLeft(z)(op)(bf.canBuildFrom)
+  def scanLeft[B](z: B)(op: (B, A) => B): NonEmpty[B] =
+    new NonEmpty(value.scanLeft(z)(op))
 
   /** Produces a collection containing cumulative results of applying
-    * the operator going right to left.
-    * The head of the collection is the last cumulative result.
-    * $willNotTerminateInf
-    * $orderDependent
+    *  the operator going right to left.  The head of the collection
+    *  is the last cumulative result.  $willNotTerminateInf
+    *  $orderDependent $willForceEvaluation
     *
-    * Example:
-    * {{{
-    *   NonEmpty(1, 2, 3, 4).scanRight(0)(_ + _) == NonEmpty(10, 9, 7, 4, 0)
-    * }}}
+    *  Example:
+    *  {{{
+    *    List(1, 2, 3, 4).scanRight(0)(_ + _) == List(10, 9, 7, 4, 0)
+    *  }}}
     *
-    * @tparam B      the type of the elements in the resulting collection
-    * @tparam That   the actual type of the resulting collection
-    * @param z       the initial value
-    * @param op      the binary operator applied to the intermediate result
-    *                and the element
-    * @param bf      $bfinfo
-    * @return        collection with intermediate results
+    *  @tparam B      the type of the elements in the resulting collection
+    *  @param z       the initial value
+    *  @param op      the binary operator applied to the intermediate result and the element
+    *  @return        collection with intermediate results
     */
-  def scanRight[B, That](z: B)(op: (A, B) => B)(implicit
-    bf: CanBuildFrom[A, B, That]
-  ): That = value.scanRight(z)(op)(bf.canBuildFrom)
+  def scanRight[B](z: B)(op: (A, B) => B): NonEmpty[B] =
+    new NonEmpty(value.scanRight(z)(op))
 
   /** Converts this $coll of pairs into two collections of the first and
     * second half of each pair.
@@ -254,89 +236,36 @@ class NonEmpty[+A] private[nonempty] (private[nonempty] val value: Iterable[A])
     (new NonEmpty(a1), new NonEmpty(a2), new NonEmpty(a3))
   }
 
-  /** Returns a $coll formed from this $coll and another iterable
-    * collection by combining corresponding elements in pairs.
-    * If one of the two collections is shorter than the other,
-    * placeholder elements are used to extend the shorter collection
-    * to the length of the longer.
+  /** Returns a $coll formed from this $coll and another iterable collection
+    *  by combining corresponding elements in pairs.
+    *  If one of the two collections is shorter than the other,
+    *  placeholder elements are used to extend the shorter collection to the length of the longer.
     *
-    * @param that     the iterable providing the second half of each result pair
-    * @param thisElem the element to be used to fill up the result if this
-    *                 $coll is shorter than `that`.
-    * @param thatElem the element to be used to fill up the result if `that` is
-    *                 shorter than this $coll.
-    * @return         a new collection of type `That` containing pairs
-    *                 consisting of corresponding elements of this
-    *                 $coll and `that`. The length of the returned
-    *                 collection is the maximum of the lengths of this
-    *                 $coll and `that`. If this $coll is shorter than
-    *                 `that`, `thisElem` values are used to pad the
-    *                 result. If `that` is shorter than this $coll,
-    *                 `thatElem` values are used to pad the result.
-    *
-    * @usecase def zipAll[B](that: Iterable[B], thisElem: A, thatElem: B): $Coll[(A, B)]
-    *   @inheritdoc
-    *
-    *   $orderDependent
-    *
-    *   @param   that   the iterable providing the second half of each result
-    *                   pair
-    *   @param thisElem the element to be used to fill up the result if this
-    *                   $coll is shorter than `that`.
-    *   @param thatElem the element to be used to fill up the result if `that`
-    *                   is shorter than this $coll.
-    *   @tparam  B      the type of the second half of the returned pairs
-    *   @return         a new $coll containing pairs consisting of
-    *                   corresponding elements of this $coll and
-    *                   `that`. The length of the returned collection
-    *                   is the maximum of the lengths of this $coll
-    *                   and `that`. If this $coll is shorter than
-    *                   `that`, `thisElem` values are used to pad the
-    *                   result. If `that` is shorter than this $coll,
-    *                   `thatElem` values are used to pad the result.
+    *  @param that     the iterable providing the second half of each result pair
+    *  @param thisElem the element to be used to fill up the result if this $coll is shorter than `that`.
+    *  @param thatElem the element to be used to fill up the result if `that` is shorter than this $coll.
+    *  @return        a new collection of type `That` containing pairs consisting of
+    *                 corresponding elements of this $coll and `that`. The length
+    *                 of the returned collection is the maximum of the lengths of this $coll and `that`.
+    *                 If this $coll is shorter than `that`, `thisElem` values are used to pad the result.
+    *                 If `that` is shorter than this $coll, `thatElem` values are used to pad the result.
     */
-  def zipAll[B, A1 >: A, That](
-    that: GenIterable[B],
+  def zipAll[A1 >: A, B](
+    that: Iterable[B],
     thisElem: A1,
-    thatElem: B
-  )(implicit bf: CanBuildFrom[A, (A1, B), That]): That =
-    value.zipAll(that, thisElem, thatElem)(bf.canBuildFrom)
+    thatElem: B,
+  ): NonEmpty[(A1, B)] = new NonEmpty(value.zipAll(that, thisElem, thatElem))
 
   /** Zips this $coll with its indices.
     *
-    *  @tparam  A1    the type of the first half of the returned pairs (this
-    *                 is always a supertype of the collection's
-    *                 element type `A`).
-    *  @tparam  That  the class of the returned collection. Where possible,
-    *                 `That` is the same class as the current
-    *                 collection class `Repr`, but this depends on the
-    *                 element type `(A1, Int)` being admissible for
-    *                 that class, which means that an implicit
-    *                 instance of type `CanBuildFrom[Repr, (A1, Int),
-    *                 That]`. is found.
-    *  @param  bf     an implicit value of class `CanBuildFrom` which
-    *                 determines the result class `That` from the
-    *                 current representation type `Repr` and the new
-    *                 element type `(A1, Int)`.
-    *  @return        a new collection of type `That` containing pairs
-    *                 consisting of all elements of this $coll paired
-    *                 with their index. Indices start at `0`.
-    *
-    *  @usecase def zipWithIndex: $Coll[(A, Int)]
-    *    @inheritdoc
-    *
-    *    $orderDependent
-    *
-    *    @return        a new $coll containing pairs consisting of all elements
-    *                   of this $coll paired with their index. Indices
-    *                   start at `0`.
-    *    @example
-    *      `NonEmpty("a", "b", "c").zipWithIndex = NonEmpty(("a", 0), ("b", 1), ("c", 2))`
-    *
+    *  @return        A new $coll containing pairs consisting of all elements of this $coll paired with their index.
+    *                 Indices start at `0`.
+    *  @example
+    *    `List("a", "b", "c").zipWithIndex == List(("a", 0), ("b", 1), ("c", 2))`
+    *  @note    Reuse: $consumesAndProducesIterator
     */
-  def zipWithIndex[A1 >: A, That](implicit
-    bf: CanBuildFrom[A, (A1, Int), That]
-  ): That = value.zipWithIndex(bf.canBuildFrom)
+  def zipWithIndex: NonEmpty[(A @uncheckedVariance, Int)] =
+    new NonEmpty(value.zipWithIndex)
 }
 object NonEmpty {
   private[this] def unsafeApply[A](it: Iterable[A]): NonEmpty[A] =
@@ -350,6 +279,7 @@ object NonEmpty {
     *
     * There is no way to directly convert a `Traversable[A]` into a `NonEmpty[A]`.
     */
+  @deprecated
   def fromTraversable[A](t: Traversable[A]): Option[NonEmpty[A]] = t.toIterable
 
   /** Convert a `Iterable[A]` to `Option[NonEmpty[A]]`.
