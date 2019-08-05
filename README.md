@@ -103,19 +103,10 @@ from `Iterable[A]` to `Option[NonEmpty[A]]` for any `A`.
 ### Preserving nonemptiness
 
 Some collection methods such as `map()` preserve nonemptiness.  The
-methods are [those which are directly defined in `class NonEmpty[]`](http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12/com/github/tarao/nonempty/NonEmpty.html).
+methods are [those which are directly defined in `class NonEmpty[_]`](http://javadoc-badge.appspot.com/com.github.tarao/nonempty_2.12/com/github/tarao/nonempty/NonEmpty.html).
 
 ```scala
 val nonempty: NonEmpty[Int] = NonEmpty(1, 2, 3).map(x => x * x)
-```
-
-Note that if you wish to use `scala.collection.breakOut` for these
-methods, you actually need to use `com.github.tarao.nonempty.breakOut`
-instead.
-
-```scala
-import com.github.tarao.nonempty.breakOut
-val m: Map[Int, Int] = NonEmpty(1, 2, 3).map(x => x -> x * x)(breakOut)
 ```
 
 ### Breaking nonemptiness

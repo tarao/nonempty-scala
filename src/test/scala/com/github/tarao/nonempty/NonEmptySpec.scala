@@ -31,7 +31,7 @@ class NonEmptySpec extends FunSpec
 
   def identical[T](ne: NonEmpty[T], t: Iterable[T]): Unit = {
     ne should equal(NonEmpty.fromIterable(t).get)
-    val t1: Traversable[T] = ne
+    val t1: Iterable[T] = ne
     t1 should equal(t)
     ne.toString should equal (t.toString)
     ne.hashCode should equal (t.hashCode)
@@ -99,11 +99,11 @@ class NonEmptySpec extends FunSpec
       }
 
       locally {
-        val t1: Iterable[Int] = scala.collection.immutable.Stream(1)
+        val t1: Iterable[Int] = scala.collection.immutable.LazyList(1)
         val ne1: Option[NonEmpty[Int]] = t1
         it should behave like identical (ne1.get, t1)
 
-        val t2: Iterable[Int] = scala.collection.immutable.Stream(1, 2, 3)
+        val t2: Iterable[Int] = scala.collection.immutable.LazyList(1, 2, 3)
         val ne2: Option[NonEmpty[Int]] = t2
         it should behave like identical (ne2.get, t2)
       }
@@ -114,16 +114,6 @@ class NonEmptySpec extends FunSpec
         it should behave like identical (ne1.get, t1)
 
         val t2: Iterable[Int] = scala.collection.immutable.Queue(1, 2, 3)
-        val ne2: Option[NonEmpty[Int]] = t2
-        it should behave like identical (ne2.get, t2)
-      }
-
-      locally {
-        val t1: Iterable[Int] = scala.collection.immutable.Stack(1)
-        val ne1: Option[NonEmpty[Int]] = t1
-        it should behave like identical (ne1.get, t1)
-
-        val t2: Iterable[Int] = scala.collection.immutable.Stack(1, 2, 3)
         val ne2: Option[NonEmpty[Int]] = t2
         it should behave like identical (ne2.get, t2)
       }
@@ -241,21 +231,7 @@ class NonEmptySpec extends FunSpec
 
     it("should freeze a mutable collection") {
       locally {
-        val t = scala.collection.mutable.MutableList(1, 2, 3)
-        val ne: Option[NonEmpty[Int]] = t
-        t.clear()
-        ne.get.size shouldBe 3
-      }
-
-      locally {
         val t = scala.collection.mutable.Stack(1, 2, 3)
-        val ne: Option[NonEmpty[Int]] = t
-        t.clear()
-        ne.get.size shouldBe 3
-      }
-
-      locally {
-        val t = scala.collection.mutable.ArrayStack(1, 2, 3)
         val ne: Option[NonEmpty[Int]] = t
         t.clear()
         ne.get.size shouldBe 3
@@ -323,13 +299,6 @@ class NonEmptySpec extends FunSpec
         t.clear()
         ne.get.size shouldBe 3
       }
-
-      locally {
-        val t = scala.collection.mutable.ListMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
-        val ne: Option[NonEmpty[(Int, String)]] = t
-        t.clear()
-        ne.get.size shouldBe 3
-      }
     }
 
     it("should preserve the collection type as NonEmpty[]") {
@@ -363,7 +332,7 @@ class NonEmptySpec extends FunSpec
       ne6.isInstanceOf[NonEmpty[_]] shouldBe true
       ne6.toSeq shouldBe Seq("0", "01", "012", "0123", "01234")
 
-      val ne7 = NonEmpty(1, 2, 3, 4).scanRight("5")((a, b) => a + b)
+      val ne7 = NonEmpty(1, 2, 3, 4).scanRight("5")((a, b) => a.toString + b)
       ne7.isInstanceOf[NonEmpty[_]] shouldBe true
       ne7.toSeq shouldBe Seq("12345", "2345", "345", "45", "5")
 
@@ -420,22 +389,14 @@ class NonEmptySpec extends FunSpec
       l6 shouldBe a[Iterable[_]]
     }
 
-    it("should map to desired type by using breakOut") {
-      val m: Map[Int, Int] = NonEmpty(1, 2, 3).map(i => i -> i*2)(breakOut)
+    it("should map to desired type by using `to`") {
+      val m: Map[Int, Int] = NonEmpty(1, 2, 3).map(i => i -> i*2).to(Map)
       m shouldBe Map(1 -> 2, 2 -> 4, 3 -> 6)
     }
   }
 
-  describe("Backward compatibility") {
-    it("can be constructed from a traersable") {
-      val Some(ne) = NonEmpty.fromTraversable(Seq(1, 2, 3))
-      ne.isInstanceOf[NonEmpty[_]] shouldBe true
-      ne.toSeq shouldBe Seq(1, 2, 3)
-    }
-  }
-
   describe("Compatibility with refined") {
-    def compatibleWithRefined[A, L[X] <: Traversable[X], F[_, _]](
+    def compatibleWithRefined[A, L[X] <: Iterable[X], F[_, _]](
       ne: F[L[A], refined.collection.NonEmpty]
     )(implicit rt: RefType[F]): Unit = { /* ok */ }
 

@@ -6,8 +6,8 @@ lazy val nonempty = (project in file(".")).
     name := "nonempty",
     organization := "com.github.tarao",
     version := "0.0.9-SNAPSHOT",
-    scalaVersion := "2.12.8",
-    crossScalaVersions := Seq("2.11.12", "2.12.8"),
+    scalaVersion := "2.13.0",
+    crossScalaVersions := Seq("2.13.0"),
 
     // Depenency
     libraryDependencies ++= Seq(
