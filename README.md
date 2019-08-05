@@ -8,6 +8,8 @@ Getting started
 
 Add dependency in your `build.sbt` as the following.
 
+For Scala 2.11 and 2.12 :
+
 ```scala
     libraryDependencies ++= Seq(
       ...
@@ -15,8 +17,16 @@ Add dependency in your `build.sbt` as the following.
     )
 ```
 
-The library is available on [Maven Central][maven].  Currently,
-supported Scala version is 2.11 and 2.12.
+For Scala 2.13 :
+
+```scala
+    libraryDependencies ++= Seq(
+      ...
+      "com.github.tarao" %% "nonempty" % "0.1.0"
+    )
+```
+
+The library is available on [Maven Central][maven].
 
 Use case
 --------
