@@ -43,7 +43,7 @@ import scala.reflect.macros.blackbox
   * @define willForceEvaluation
   *              Note: Even when applied to a view or a lazy
   *              collection it will always force the elements.
-  * @define consumesAndproducesiterator
+  * @define consumesAndProducesIterator
   *              After calling this method, one should discard the
   *              iterator it was called on, and use only the iterator
   *              that was returned. Using the old iterator is
