@@ -723,6 +723,201 @@ class NonEmptySpec extends FunSpec
       }
     }
 
+    describe("SeqOps") {
+      it("should preserve non-emptiness after .prepended()") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1.prepended(0)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(0, 1, 2, 3)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = nel1.prepended(0)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(0, 1, 2, 3)
+        }
+      }
+
+      it("should preserve non-emptiness after +:") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = 0 +: nel1
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(0, 1, 2, 3)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = 0 +: nel1
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(0, 1, 2, 3)
+        }
+      }
+
+      it("should preserve non-emptiness after .appended()") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1.appended(4)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(1, 2, 3, 4)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = nel1.appended(4)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4)
+        }
+      }
+
+      it("should preserve non-emptiness after :+") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1 :+ 4
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(1, 2, 3, 4)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = nel1 :+ 4
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4)
+        }
+      }
+
+      it("should preserve non-emptiness after .prependedAll()") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1.prependedAll(Seq(-1, 0))
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(-1, 0, 1, 2, 3)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = nel1.prependedAll(Seq(-1, 0))
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(-1, 0, 1, 2, 3)
+        }
+      }
+
+      it("should preserve non-emptiness after ++:") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = Seq(-1, 0) ++: nel1
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(-1, 0, 1, 2, 3)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = Seq(-1, 0) ++: nel1
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(-1, 0, 1, 2, 3)
+        }
+      }
+
+      it("should preserve non-emptiness after .appendedAll()") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1.appendedAll(Seq(4, 5))
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(1, 2, 3, 4, 5)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = nel1.appendedAll(Seq(4, 5))
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4, 5)
+        }
+      }
+
+      it("should preserve non-emptiness after :++") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1 :++ Seq(4, 5)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Vector(1, 2, 3, 4, 5)
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val nel2 = nel1 :++ Seq(4, 5)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4, 5)
+        }
+      }
+
+      it("should preserve non-emptiness after .permutations()") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val perm1 = nel1.permutations.toSeq
+          typeEquals(Seq(nel1), perm1)
+          perm1.map(_.value) should contain theSameElementsAs(Seq(
+            Vector(1, 2, 3),
+            Vector(1, 3, 2),
+            Vector(2, 1, 3),
+            Vector(2, 3, 1),
+            Vector(3, 1, 2),
+            Vector(3, 2, 1),
+          ))
+        }
+
+        locally {
+          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
+          val perm1 = nel1.permutations.toSeq
+          typeEquals(Seq(nel1), perm1)
+          perm1.map(_.value) should contain theSameElementsAs(Seq(
+            ArrayBuffer(1, 2, 3),
+            ArrayBuffer(1, 3, 2),
+            ArrayBuffer(2, 1, 3),
+            ArrayBuffer(2, 3, 1),
+            ArrayBuffer(3, 1, 2),
+            ArrayBuffer(3, 2, 1),
+          ))
+        }
+      }
+
+      it("should preserve non-emptiness after .reverse()") {
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.reverse
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(3, 2, 1)
+      }
+
+      it("should preserve non-emptiness after .sortBy()") {
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.sortBy(_ * -1)
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(3, 2, 1)
+      }
+
+      it("should preserve non-emptiness after .sortWith()") {
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.sortWith(_ > _)
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(3, 2, 1)
+      }
+
+      it("should preserve non-emptiness after .sorted()") {
+        val nel1 = NonEmpty[Vector[Int]](1, 3, 2)
+        val nel2 = nel1.sorted
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(1, 2, 3)
+      }
+
+      it("should preserve non-emptiness after .updated()") {
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.updated(1, 20)
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(1, 20, 3)
+      }
+    }
+
     describe("String") {
       it("should preserve non-emptiness of a string") {
         val Some(nes1) = NonEmpty.from("foo")
