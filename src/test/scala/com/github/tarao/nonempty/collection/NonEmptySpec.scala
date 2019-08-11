@@ -953,6 +953,74 @@ class NonEmptySpec extends FunSpec
       }
     }
 
+    describe("MapOps") {
+      it("should preserve non-emptiness after .keySet") {
+        locally {
+          val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val nel2 = nel1.keySet
+          val nel3 = NonEmpty[Set[String]]("hoge", "foo")
+          typeEquals(nel2, nel3)
+          nel2.value shouldBe nel3.value
+        }
+
+        locally {
+          val nel1 = NonEmpty[scala.collection.Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val nel2 = nel1.keySet
+          val nel3 = NonEmpty[scala.collection.Set[String]]("hoge", "foo")
+          typeEquals(nel2, nel3)
+          nel2.value shouldBe nel3.value
+        }
+      }
+
+      it("should preserve non-emptiness after .keys") {
+        locally {
+          val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val nel2 = nel1.keys
+          val nel3 = NonEmpty[Iterable[String]]("hoge", "foo")
+          typeEquals(nel2, nel3)
+          nel2.value should contain theSameElementsAs nel3.value
+        }
+      }
+
+      it("should preserve non-emptiness after .values") {
+        locally {
+          val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val nel2 = nel1.values
+          val nel3 = NonEmpty[Iterable[Int]](4, 3)
+          typeEquals(nel2, nel3)
+          nel2.value should contain theSameElementsAs nel3.value
+        }
+      }
+
+      it("should preserve non-emptiness after .updated()") {
+        locally {
+          val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val nel2 = nel1.updated("bar", 3)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Map("hoge" -> 4, "foo" -> 3, "bar" -> 3)
+        }
+      }
+
+      it("should preserve non-emptiness after +") {
+        locally {
+          val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val nel2 = nel1 + ("bar" -> 3)
+          typeEquals(nel1, nel2)
+          nel2.value shouldBe Map("hoge" -> 4, "foo" -> 3, "bar" -> 3)
+        }
+      }
+
+      it("should preserve non-emptiness after .transform()") {
+        locally {
+          val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val nel2 = nel1.transform(_ + _.toString)
+          val nel3: NonEmpty[(String, String), Map[String, String]] = nel2
+          typeEquals(nel2, nel3)
+          nel2.value shouldBe Map("hoge" -> "hoge4", "foo" -> "foo3")
+        }
+      }
+    }
+
     describe("String") {
       it("should preserve non-emptiness of a string") {
         val Some(nes1) = NonEmpty.from("foo")
