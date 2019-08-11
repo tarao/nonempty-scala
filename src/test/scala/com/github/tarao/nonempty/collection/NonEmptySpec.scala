@@ -918,6 +918,41 @@ class NonEmptySpec extends FunSpec
       }
     }
 
+    describe("ListOps") {
+      it("should preserve non-emptiness after ::") {
+        val nel1 = NonEmpty[List[Int]](1, 2, 3)
+        val nel2 = 0 :: nel1
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe List(0, 1, 2, 3)
+      }
+
+      it("should preserve non-emptiness after :::") {
+        val nel1 = NonEmpty[List[Int]](1, 2, 3)
+        val nel2 = List(-2, -1, 0) ::: nel1
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe List(-2, -1, 0, 1, 2, 3)
+      }
+
+      it("should preserve non-emptiness after .reverse_:::()") {
+        val nel1 = NonEmpty[List[Int]](1, 2, 3)
+        val nel2 = nel1.reverse_:::(List(4, 5, 6))
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe List(6, 5, 4, 1, 2, 3)
+      }
+
+      it("should preserve non-emptiness after .mapConserve()") {
+        case class Foo(n: Int)
+        val nel1 = NonEmpty[List[Foo]](Foo(1), Foo(2), Foo(3))
+        val nel2 = nel1.mapConserve(identity)
+        val nel3 = nel1.mapConserve(_ => Foo(10))
+        typeEquals(nel1, nel2)
+        nel1.value should be theSameInstanceAs nel2.value
+        typeEquals(nel1, nel3)
+        nel3.value shouldBe List(Foo(10), Foo(10), Foo(10))
+        nel1.value should not be theSameInstanceAs (nel3.value)
+      }
+    }
+
     describe("String") {
       it("should preserve non-emptiness of a string") {
         val Some(nes1) = NonEmpty.from("foo")
