@@ -40,6 +40,7 @@ final class NonEmpty[+A, +C <: Iterable[A]] private (val value: C)
     with SeqOps[A, C]
     with ListOps[A, C]
     with MapOps[A, C]
+    with SetOps[A, C]
     with Refined[C, refined.collection.NonEmpty] {
   @inline protected def unsafeApply[A, C <: Iterable[A]](
     it: C

@@ -1021,6 +1021,44 @@ class NonEmptySpec extends FunSpec
       }
     }
 
+    describe("SetOps") {
+      it("should preserve non-emptiness after .union()") {
+        val nel1 = NonEmpty[Set[Int]](1, 2, 3)
+        val nel2 = nel1.union(Set(2, 4, 6))
+        val nel3: NonEmpty[Int, Set[Int]] = nel1
+        typeEquals(nel1, nel2) shouldBe true
+        typeEquals(nel2, nel3) shouldBe true
+        nel2.value shouldBe Set(1, 2, 3, 4, 6)
+      }
+
+      it("should preserve non-emptiness after |") {
+        val nel1 = NonEmpty[Set[Int]](1, 2, 3)
+        val nel2 = nel1 | Set(2, 4, 6)
+        val nel3: NonEmpty[Int, Set[Int]] = nel1
+        typeEquals(nel1, nel2) shouldBe true
+        typeEquals(nel2, nel3) shouldBe true
+        nel2.value shouldBe Set(1, 2, 3, 4, 6)
+      }
+
+      it("should preserve non-emptiness after .incl()") {
+        val nel1 = NonEmpty[Set[Int]](1, 2, 3)
+        val nel2 = nel1.incl(4)
+        val nel3: NonEmpty[Int, Set[Int]] = nel1
+        typeEquals(nel1, nel2) shouldBe true
+        typeEquals(nel2, nel3) shouldBe true
+        nel2.value shouldBe Set(1, 2, 3, 4)
+      }
+
+      it("should preserve non-emptiness after +") {
+        val nel1 = NonEmpty[Set[Int]](1, 2, 3)
+        val nel2 = nel1 + 4
+        val nel3: NonEmpty[Int, Set[Int]] = nel1
+        typeEquals(nel1, nel2) shouldBe true
+        typeEquals(nel2, nel3) shouldBe true
+        nel2.value shouldBe Set(1, 2, 3, 4)
+      }
+    }
+
     describe("String") {
       it("should preserve non-emptiness of a string") {
         val Some(nes1) = NonEmpty.from("foo")
