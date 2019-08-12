@@ -1059,6 +1059,77 @@ class NonEmptySpec extends FunSpec
       }
     }
 
+    describe("LazyListOps") {
+      it("should preserve non-emptiness after .force") {
+        var called: Int = 0
+        val ll = LazyList.continually({
+          called += 1
+          called
+        })
+        val Some(nel1) = NonEmpty.from(ll.take(5))
+        called shouldBe 1
+        val nel2 = nel1.force
+        called shouldBe 5
+        val nel3: NonEmpty[Int, LazyList[Int]] = nel1
+        typeEquals(nel1, nel2)
+        typeEquals(nel2, nel3)
+        nel1.value should be theSameInstanceAs nel2.value
+        nel1.value.toVector shouldBe Vector(1, 2, 3, 4, 5)
+      }
+
+      it("should preserve non-emptiness after .lazyAppendAll") {
+        var called: Int = 0
+        val ll = LazyList.continually({
+          called += 1
+          called
+        })
+        val Some(nel1) = NonEmpty.from(ll.take(3))
+        called shouldBe 1
+        val nel2 = nel1.lazyAppendedAll(Seq(4, 5, 6))
+        called shouldBe 1
+        val nel3: NonEmpty[Int, LazyList[Int]] = nel1
+        typeEquals(nel1, nel2)
+        typeEquals(nel2, nel3)
+        nel2.value.toVector shouldBe Vector(1, 2, 3, 4, 5, 6)
+        called shouldBe 3
+      }
+
+      it("should preserve non-emptiness after #::") {
+        var called: Int = 0
+        val ll = LazyList.continually({
+          called += 1
+          called
+        })
+        val Some(nel1) = NonEmpty.from(ll.take(3))
+        called shouldBe 1
+        val nel2 = 0 #:: nel1
+        called shouldBe 1
+        val nel3: NonEmpty[Int, LazyList[Int]] = nel1
+        typeEquals(nel1, nel2)
+        typeEquals(nel2, nel3)
+        nel2.value.toVector shouldBe Vector(0, 1, 2, 3)
+        called shouldBe 3
+      }
+
+      it("should preserve non-emptiness after #:::") {
+        var called: Int = 0
+        val ll = LazyList.continually({
+          called += 1
+          called
+        })
+        val Some(nel1) = NonEmpty.from(ll.take(3))
+        called shouldBe 1
+        val ll2 = LazyList(-2, -1, 0)
+        val nel2 = ll2 #::: nel1
+        called shouldBe 1
+        val nel3: NonEmpty[Int, LazyList[Int]] = nel1
+        typeEquals(nel1, nel2)
+        typeEquals(nel2, nel3)
+        nel2.value.toVector shouldBe Vector(-2, -1, 0, 1, 2, 3)
+        called shouldBe 3
+      }
+    }
+
     describe("String") {
       it("should preserve non-emptiness of a string") {
         val Some(nes1) = NonEmpty.from("foo")

@@ -41,6 +41,7 @@ final class NonEmpty[+A, +C <: Iterable[A]] private (val value: C)
     with ListOps[A, C]
     with MapOps[A, C]
     with SetOps[A, C]
+    with LazyListOps[A, C]
     with Refined[C, refined.collection.NonEmpty] {
   @inline protected def unsafeApply[A, C <: Iterable[A]](
     it: C
@@ -50,6 +51,7 @@ final class NonEmpty[+A, +C <: Iterable[A]] private (val value: C)
 }
 object NonEmpty extends AnyRef
     with MapOps.Implicits
+    with LazyListOps.Implicits
     with FromIterable with ToIterable
     with FromRefined with ToRefined {
   @inline override protected def unsafeApply[A, C <: Iterable[A]](it: C) : NonEmpty[A, C] =
