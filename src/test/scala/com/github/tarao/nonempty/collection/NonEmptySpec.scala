@@ -1130,6 +1130,22 @@ class NonEmptySpec extends FunSpec
       }
     }
 
+    describe("QueueOps") {
+      it("should preserve non-emptiness after .enqueue()") {
+        val nel1 = NonEmpty[immutable.Queue[Int]](1, 2, 3)
+        val nel2 = nel1.enqueue(4)
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe immutable.Queue(1, 2, 3, 4)
+      }
+
+      it("should preserve non-emptiness after .enqueueAll()") {
+        val nel1 = NonEmpty[immutable.Queue[Int]](1, 2, 3)
+        val nel2 = nel1.enqueueAll(Seq(4, 5))
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe immutable.Queue(1, 2, 3, 4, 5)
+      }
+    }
+
     describe("String") {
       it("should preserve non-emptiness of a string") {
         val Some(nes1) = NonEmpty.from("foo")
