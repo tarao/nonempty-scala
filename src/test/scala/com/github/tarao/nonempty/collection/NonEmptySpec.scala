@@ -1146,21 +1146,171 @@ class NonEmptySpec extends FunSpec
       }
     }
 
-    describe("String") {
-      it("should preserve non-emptiness of a string") {
+    describe("StringOps") {
+      it("should preserve non-emptiness after .concat()") {
         val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.concat("bar")
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foobar"
+      }
 
+      it("should preserve non-emptiness after ++") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1 ++ "bar"
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foobar"
+      }
+
+      it("should preserve non-emptiness after .prepended()") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.prepended('a')
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "afoo"
+      }
+
+      it("should preserve non-emptiness after +:") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = 'a' +: nes1
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "afoo"
+      }
+
+      it("should preserve non-emptiness after .prependedAll()") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.prependedAll("bar")
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "barfoo"
+      }
+
+      it("should preserve non-emptiness after ++:") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = "bar" ++: nes1
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "barfoo"
+      }
+
+      it("should preserve non-emptiness after .appended()") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.appended('x')
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foox"
+      }
+
+      it("should preserve non-emptiness after :+") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1 :+ 'x'
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foox"
+      }
+
+      it("should preserve non-emptiness after .appendedAll()") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.appendedAll("bar")
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foobar"
+      }
+
+      it("should preserve non-emptiness after :++") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1 :++ "bar"
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foobar"
+      }
+
+      it("should preserve non-emptiness after .padTo()") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.padTo(5, 'x')
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "fooxx"
+      }
+
+      it("should preserve non-emptiness after *") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1 * 3
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foofoofoo"
+      }
+
+      it("should preserve non-emptiness after .capitalize()") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.capitalize
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "Foo"
+      }
+
+      it("should preserve non-emptiness after .format()") {
+        val Some(nes1) = NonEmpty.from("foo%s")
+        val nes2 = nes1.format("bar")
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foobar"
+      }
+
+      it("should preserve non-emptiness after .formatLocal()") {
+        val Some(nes1) = NonEmpty.from("foo%s")
+        val nes2 = nes1.formatLocal(java.util.Locale.ENGLISH, "bar")
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "foobar"
+      }
+
+      it("should preserve non-emptiness after .toLowerCase()") {
         locally {
-          val nes2 = nes1 ++ "bar"
-          typeEquals(nes1, nes2) shouldBe true
-          nes2.value.unwrap shouldBe "foobar"
+          val Some(nel) = NonEmpty.from("FOO")
+          val s1 = nel.toLowerCase
+          val s2: NonEmpty[Char, immutable.WrappedString] = s1
+          typeEquals(s1, s2)
+          s1.value.unwrap shouldBe "foo"
         }
 
         locally {
-          val nes2 = 'a' +: nes1
-          typeEquals(nes1, nes2) shouldBe true
-          nes2.value.unwrap shouldBe "afoo"
+          val Some(nel) = NonEmpty.from("FOO")
+          val s1 = nel.toLowerCase(java.util.Locale.ENGLISH)
+          val s2: NonEmpty[Char, immutable.WrappedString] = s1
+          typeEquals(s1, s2)
+          s1.value.unwrap shouldBe "foo"
         }
+      }
+
+      it("should preserve non-emptiness after .toUpperCase()") {
+        locally {
+          val Some(nel) = NonEmpty.from("foo")
+          val s1 = nel.toUpperCase
+          val s2: NonEmpty[Char, immutable.WrappedString] = s1
+          typeEquals(s1, s2)
+          s1.value.unwrap shouldBe "FOO"
+        }
+
+        locally {
+          val Some(nel) = NonEmpty.from("foo")
+          val s1 = nel.toUpperCase(java.util.Locale.ENGLISH)
+          val s2: NonEmpty[Char, immutable.WrappedString] = s1
+          typeEquals(s1, s2)
+          s1.value.unwrap shouldBe "FOO"
+        }
+      }
+
+      it("should preserve non-emptiness after .reverse") {
+        val Some(nes1) = NonEmpty.from("foo")
+        val nes2 = nes1.reverse
+        typeEquals(nes1, nes2) shouldBe true
+        nes2.value.unwrap shouldBe "oof"
+      }
+
+      it("should preserve non-emptiness after .grouped()") {
+        val Some(nel) = NonEmpty.from("foo")
+        val grouped1 = nel.grouped(2)
+        val grouped2: Iterator[NonEmpty[Char, immutable.WrappedString]] = grouped1
+        typeEquals(grouped1, grouped2)
+        grouped1.toVector.map(s => s: String) shouldBe Vector("fo", "o")
+      }
+    }
+
+    describe("NonEmpty[Char, WrappedString]") {
+      it("should provide String methods") {
+        val Some(nel) = NonEmpty.from("foo")
+        val s1 = nel.replaceAll("o", "x")
+        val s2: String = s1
+        typeEquals(s1, s2)
+        s1 shouldBe "fxx"
       }
     }
 
