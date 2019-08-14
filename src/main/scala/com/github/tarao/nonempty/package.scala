@@ -1,5 +1,7 @@
 package com.github.tarao
 
+import scala.collection.immutable
+
 package object nonempty {
   /** An alias of `NonEmpty[A, Iterable[A]]`.
     *
@@ -24,14 +26,20 @@ package object nonempty {
       * Note: There is no way to directly convert a collection into a
       *       `NonEmpty[_]`.
       *
+      * Note: If you pass a mutable collection as `it`, a copy is made
+      *       to prevent it from becoming empty somewhere beyond the
+      *       protection of `NonEmpty[_]`.
+      *
       * Example {{{
       *   val ne = NonEmpty.fromIterable(List(1, 2, 3))
       * }}}
       *
-      * @return `Some` refined collection value if it is neither empty
-      *          nor mutable, or otherwise `None`.
+      * @return `Some` refined collection value if it is not empty, or
+      *         otherwise `None`.
       */
-    def fromIterable[A](it: Iterable[A]): Option[NonEmpty[A]] =
-      collection.NonEmpty.from(it)
+    def fromIterable[A](it: Iterable[A]): Option[NonEmpty[A]] = it match {
+      case it: immutable.Iterable[_] => collection.NonEmpty.from(it)
+      case _ => collection.NonEmpty.from(it.toList)
+    }
   }
 }
