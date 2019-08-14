@@ -14,6 +14,7 @@ package object nonempty {
       * }}}
       *
       * @tparam C the collection type
+      * @return a non-empty collection.
       */
     def apply[A](head: A, elements: A*): NonEmpty[A] =
       collection.NonEmpty[Iterable[A]](head, elements: _*)
@@ -23,12 +24,12 @@ package object nonempty {
       * Note: There is no way to directly convert a collection into a
       *       `NonEmpty[_]`.
       *
-      * Note: If you pass a mutable collection as `it`, a copy is made
-      *       to avoid dropping the elements.
-      *
       * Example {{{
       *   val ne = NonEmpty.fromIterable(List(1, 2, 3))
       * }}}
+      *
+      * @return `Some` refined collection value if it is neither empty
+      *          nor mutable, or otherwise `None`.
       */
     def fromIterable[A](it: Iterable[A]): Option[NonEmpty[A]] =
       collection.NonEmpty.from(it)

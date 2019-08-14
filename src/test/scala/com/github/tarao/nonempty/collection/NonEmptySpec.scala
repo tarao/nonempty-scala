@@ -72,6 +72,73 @@ class NonEmptySpec extends FunSpec
       AsParameterOf.optionNonEmpty[Int, mutable.BitSet](mutable.BitSet(1, 2, 3))
       AsParameterOf.optionNonEmpty[Char, immutable.WrappedString]("foo")
     }
+
+    it("should reject mutable collections") {
+      locally {
+        val it = mutable.Stack(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.Queue(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.PriorityQueue(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.ArraySeq(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.ArrayBuffer(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.ListBuffer(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.HashSet(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.LinkedHashSet(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.TreeSet(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.BitSet(1, 2, 3)
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.HashMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.LinkedHashMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val None = NonEmpty.from(it)
+      }
+
+      locally {
+        val it = mutable.TreeMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
+        val None = NonEmpty.from(it)
+      }
+    }
   }
 
   describe("A context of type NonEmpty[_, _]") {
@@ -379,177 +446,6 @@ class NonEmptySpec extends FunSpec
         typeEquals(nel1, nel2) shouldBe true
       }
     }
-
-    it("should freeze the underlying mutable collection") {
-      locally {
-        val it = mutable.Stack(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.Stack[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.Queue(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.Queue[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.PriorityQueue(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.PriorityQueue[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.ArraySeq(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.update(1, 20)
-        it.sum shouldBe 24
-        nel.sum shouldBe 6
-
-        val it2: mutable.ArraySeq[Int] = nel
-        it2.update(0, 10)
-        it2.sum shouldBe 15
-        nel.sum shouldBe 6
-      }
-
-      locally {
-        val it = mutable.ArrayBuffer(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.ArrayBuffer[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.ListBuffer(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.ListBuffer[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.HashSet(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.HashSet[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.LinkedHashSet(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.LinkedHashSet[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.TreeSet(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.TreeSet[Int] = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.BitSet(1, 2, 3)
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.BitSet = nel
-        it2 += 10
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.HashMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.HashMap[Int, String] = nel
-        it2 += 10 -> "qux"
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.LinkedHashMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.LinkedHashMap[Int, String] = nel
-        it2 += 10 -> "qux"
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-
-      locally {
-        val it = mutable.TreeMap(1 -> "foo", 2 -> "bar", 3 -> "baz")
-        val Some(nel) = NonEmpty.from(it)
-        it.clear()
-        it.size shouldBe 0
-        nel.size shouldBe 3
-
-        val it2: mutable.TreeMap[Int, String] = nel
-        it2 += 10 -> "qux"
-        it2.size shouldBe 4
-        nel.size shouldBe 3
-      }
-    }
   }
 
   describe("Preserving non-emptiness") {
@@ -725,161 +621,73 @@ class NonEmptySpec extends FunSpec
 
     describe("SeqOps") {
       it("should preserve non-emptiness after .prepended()") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = nel1.prepended(0)
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(0, 1, 2, 3)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = nel1.prepended(0)
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(0, 1, 2, 3)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.prepended(0)
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(0, 1, 2, 3)
       }
 
       it("should preserve non-emptiness after +:") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = 0 +: nel1
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(0, 1, 2, 3)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = 0 +: nel1
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(0, 1, 2, 3)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = 0 +: nel1
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(0, 1, 2, 3)
       }
 
       it("should preserve non-emptiness after .appended()") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = nel1.appended(4)
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(1, 2, 3, 4)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = nel1.appended(4)
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.appended(4)
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(1, 2, 3, 4)
       }
 
       it("should preserve non-emptiness after :+") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = nel1 :+ 4
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(1, 2, 3, 4)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = nel1 :+ 4
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1 :+ 4
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(1, 2, 3, 4)
       }
 
       it("should preserve non-emptiness after .prependedAll()") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = nel1.prependedAll(Seq(-1, 0))
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(-1, 0, 1, 2, 3)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = nel1.prependedAll(Seq(-1, 0))
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(-1, 0, 1, 2, 3)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.prependedAll(Seq(-1, 0))
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(-1, 0, 1, 2, 3)
       }
 
       it("should preserve non-emptiness after ++:") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = Seq(-1, 0) ++: nel1
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(-1, 0, 1, 2, 3)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = Seq(-1, 0) ++: nel1
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(-1, 0, 1, 2, 3)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = Seq(-1, 0) ++: nel1
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(-1, 0, 1, 2, 3)
       }
 
       it("should preserve non-emptiness after .appendedAll()") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = nel1.appendedAll(Seq(4, 5))
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(1, 2, 3, 4, 5)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = nel1.appendedAll(Seq(4, 5))
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4, 5)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.appendedAll(Seq(4, 5))
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(1, 2, 3, 4, 5)
       }
 
       it("should preserve non-emptiness after :++") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val nel2 = nel1 :++ Seq(4, 5)
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe Vector(1, 2, 3, 4, 5)
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val nel2 = nel1 :++ Seq(4, 5)
-          typeEquals(nel1, nel2)
-          nel2.value shouldBe ArrayBuffer(1, 2, 3, 4, 5)
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1 :++ Seq(4, 5)
+        typeEquals(nel1, nel2)
+        nel2.value shouldBe Vector(1, 2, 3, 4, 5)
       }
 
       it("should preserve non-emptiness after .permutations()") {
-        locally {
-          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
-          val perm1 = nel1.permutations.toSeq
-          typeEquals(Seq(nel1), perm1)
-          perm1.map(_.value) should contain theSameElementsAs(Seq(
-            Vector(1, 2, 3),
-            Vector(1, 3, 2),
-            Vector(2, 1, 3),
-            Vector(2, 3, 1),
-            Vector(3, 1, 2),
-            Vector(3, 2, 1),
-          ))
-        }
-
-        locally {
-          val nel1 = NonEmpty[ArrayBuffer[Int]](1, 2, 3)
-          val perm1 = nel1.permutations.toSeq
-          typeEquals(Seq(nel1), perm1)
-          perm1.map(_.value) should contain theSameElementsAs(Seq(
-            ArrayBuffer(1, 2, 3),
-            ArrayBuffer(1, 3, 2),
-            ArrayBuffer(2, 1, 3),
-            ArrayBuffer(2, 3, 1),
-            ArrayBuffer(3, 1, 2),
-            ArrayBuffer(3, 2, 1),
-          ))
-        }
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val perm1 = nel1.permutations.toSeq
+        typeEquals(Seq(nel1), perm1)
+        perm1.map(_.value) should contain theSameElementsAs(Seq(
+          Vector(1, 2, 3),
+          Vector(1, 3, 2),
+          Vector(2, 1, 3),
+          Vector(2, 3, 1),
+          Vector(3, 1, 2),
+          Vector(3, 2, 1),
+        ))
       }
 
       it("should preserve non-emptiness after .reverse()") {
@@ -964,9 +772,9 @@ class NonEmptySpec extends FunSpec
         }
 
         locally {
-          val nel1 = NonEmpty[scala.collection.Map[String, Int]]("hoge" -> 4, "foo" -> 3)
+          val Some(nel1) = NonEmpty.from(scala.collection.Map("hoge" -> 4, "foo" -> 3))
           val nel2 = nel1.keySet
-          val nel3 = NonEmpty[scala.collection.Set[String]]("hoge", "foo")
+          val nel3: NonEmpty[String, scala.collection.Set[String]] = NonEmpty[Set[String]]("hoge", "foo")
           typeEquals(nel2, nel3)
           nel2.value shouldBe nel3.value
         }
@@ -976,7 +784,7 @@ class NonEmptySpec extends FunSpec
         locally {
           val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
           val nel2 = nel1.keys
-          val nel3 = NonEmpty[Iterable[String]]("hoge", "foo")
+          val nel3: NonEmpty[String, Iterable[String]] = NonEmpty[List[String]]("hoge", "foo")
           typeEquals(nel2, nel3)
           nel2.value should contain theSameElementsAs nel3.value
         }
@@ -986,7 +794,7 @@ class NonEmptySpec extends FunSpec
         locally {
           val nel1 = NonEmpty[Map[String, Int]]("hoge" -> 4, "foo" -> 3)
           val nel2 = nel1.values
-          val nel3 = NonEmpty[Iterable[Int]](4, 3)
+          val nel3: NonEmpty[Int, Iterable[Int]] = NonEmpty[List[Int]](4, 3)
           typeEquals(nel2, nel3)
           nel2.value should contain theSameElementsAs nel3.value
         }
@@ -1390,36 +1198,12 @@ class NonEmptySpec extends FunSpec
       }
 
       locally {
-        val Right(ref) = refineV[PredNonEmpty](ArrayBuffer(1, 2, 3))
-        val nel1 = NonEmpty.fromRefined(ref)
-        val nel2: NonEmpty[Int, ArrayBuffer[Int]] = ref
-        typeEquals(nel1, nel2)
-
-        val ref1: refined.api.Refined[ArrayBuffer[Int], PredNonEmpty] = nel1
-        val ref2: refined.api.Refined[Iterable[Int], PredNonEmpty] = nel1
-        val ref3 = nel1.toRefined
-        typeEquals(ref1, ref3)
-      }
-
-      locally {
         val Right(ref) = refineV[PredNonEmpty](Map(1 -> "foo"))
         val nel1 = NonEmpty.fromRefined(ref)
         val nel2: NonEmpty[(Int, String), Map[Int, String]] = ref
         typeEquals(nel1, nel2)
 
         val ref1: refined.api.Refined[Map[Int, String], PredNonEmpty] = nel1
-        val ref2: refined.api.Refined[Iterable[(Int, String)], PredNonEmpty] = nel1
-        val ref3 = nel1.toRefined
-        typeEquals(ref1, ref3)
-      }
-
-      locally {
-        val Right(ref) = refineV[PredNonEmpty](mutable.Map(1 -> "foo"))
-        val nel1 = NonEmpty.fromRefined(ref)
-        val nel2: NonEmpty[(Int, String), mutable.Map[Int, String]] = ref
-        typeEquals(nel1, nel2)
-
-        val ref1: refined.api.Refined[mutable.Map[Int, String], PredNonEmpty] = nel1
         val ref2: refined.api.Refined[Iterable[(Int, String)], PredNonEmpty] = nel1
         val ref3 = nel1.toRefined
         typeEquals(ref1, ref3)
@@ -1438,36 +1222,12 @@ class NonEmptySpec extends FunSpec
       }
 
       locally {
-        val Right(ref) = refineV[PredNonEmpty](mutable.TreeMap(1 -> "foo"))
+        val Right(ref) = refineV[PredNonEmpty](immutable.BitSet(1, 2, 3))
         val nel1 = NonEmpty.fromRefined(ref)
-        val nel2: NonEmpty[(Int, String), mutable.TreeMap[Int, String]] = ref
+        val nel2: NonEmpty[Int, immutable.BitSet] = ref
         typeEquals(nel1, nel2)
 
-        val ref1: refined.api.Refined[mutable.TreeMap[Int, String], PredNonEmpty] = nel1
-        val ref2: refined.api.Refined[Iterable[(Int, String)], PredNonEmpty] = nel1
-        val ref3 = nel1.toRefined
-        typeEquals(ref1, ref3)
-      }
-
-      locally {
-        val Right(ref) = refineV[PredNonEmpty](scala.collection.BitSet(1, 2, 3))
-        val nel1 = NonEmpty.fromRefined(ref)
-        val nel2: NonEmpty[Int, scala.collection.BitSet] = ref
-        typeEquals(nel1, nel2)
-
-        val ref1: refined.api.Refined[scala.collection.BitSet, PredNonEmpty] = nel1
-        val ref2: refined.api.Refined[Iterable[Int], PredNonEmpty] = nel1
-        val ref3 = nel1.toRefined
-        typeEquals(ref1, ref3)
-      }
-
-      locally {
-        val Right(ref) = refineV[PredNonEmpty](mutable.BitSet(1, 2, 3))
-        val nel1 = NonEmpty.fromRefined(ref)
-        val nel2: NonEmpty[Int, mutable.BitSet] = ref
-        typeEquals(nel1, nel2)
-
-        val ref1: refined.api.Refined[mutable.BitSet, PredNonEmpty] = nel1
+        val ref1: refined.api.Refined[immutable.BitSet, PredNonEmpty] = nel1
         val ref2: refined.api.Refined[Iterable[Int], PredNonEmpty] = nel1
         val ref3 = nel1.toRefined
         typeEquals(ref1, ref3)

@@ -2,6 +2,7 @@ package com.github.tarao.nonempty
 package collection
 
 import eu.timepit.refined
+import scala.collection.immutable
 
 /** A value class for non-empty collections.
   *
@@ -10,22 +11,19 @@ import eu.timepit.refined
   * statically, i.e., it is not possible to pass an empty collection
   * as a parameter of type `NonEmpty[]`.
   *
-  * The static safety is guaranteed by three reasons:
+  * The static safety is guaranteed by two reasons:
   *  1. there is no way to create a new instance of `NonEmpty[]` other
   *     than by factory methods provided by singleton object
   *     `NonEmpty`
   *  1. there are only three factory methods:
   *     - `NonEmpty.from`, which is also an implicit conversion, from
   *       `C <: Iterable[A]` to `Option[NonEmpty[A, C]]` where an
-  *       empty value will be None
+  *       empty or mutable value will be None
   *     - `NonEmpty.fromRefined`, which is also an implicit
   *       conversion, from `eu.timepit.refined.Refined[C,
   *       eu.timepit.refined.collection.NonEmpty]` to `NonEmpty[A, C]`
   *       for some `C <: Iterable[A]`.
   *     - `NonEmpty.apply`, which takes at least one argument
-  *  1. the conversions clone the instance of the collection if it is
-  *     mutable (or otherwise its elements can be dropped and it
-  *     becomes empty)
   *
   * A value of type `NonEmpty[A, C]` can be used as a `C` by an
   * implicit conversion from `NonEmpty[A, C]` to `C`.  It also has
@@ -59,13 +57,23 @@ object NonEmpty extends AnyRef
   @inline override protected def unsafeApply[A, C <: Iterable[A]](it: C) : NonEmpty[A, C] =
     new NonEmpty[A, C](it)
 
-  @inline override protected def unsafeImmutableApply[A, C <: Iterable[A]](it: C)(implicit
-    factory: scala.collection.Factory[A, C]
-  ) : NonEmpty[A, C] = it match {
-    case _: scala.collection.mutable.Iterable[_] =>
-      unsafeApply[A, C](factory.newBuilder.addAll(it).result)
+  @inline override protected def unsafeImmutableApply[A, C <: Iterable[A]](
+    it: C
+  ): Option[NonEmpty[A, C]] = it match {
+    case _: immutable.Iterable[_] =>
+      Some(unsafeApply[A, C](it))
     case _ =>
-      unsafeApply[A, C](it)
+      // We are disallowing mutable collection to be passed because it
+      // may be changed to be empty somewhere beyond the protection of
+      // NonEmpty[_, _].
+      //
+      // It would be nice if we can convert a mutable collection such
+      // as `scala.collection.mutable.ArrayBuffer` into an immutable
+      // one such as `scala.collection.immutable.Seq`.  In this case,
+      // we need `C` to be a common super type of the both mutable and
+      // immutable types, such as `scala.collection.Seq`.  We leave
+      // them as future work since they are non-trivial to achieve.
+      None
   }
 
   /** Create a `NonEmpty` instance by providing at least one element.
@@ -79,9 +87,10 @@ object NonEmpty extends AnyRef
   def apply[C]: Builder[C] = new Builder[C]
 
   class Builder[C] {
-    def apply[A, C1 <: C with Iterable[A]](head: A, elements: A*)(implicit
-      factory: scala.collection.Factory[A, C1]
-    ): NonEmpty[A, C1] =
-      unsafeImmutableApply[A, C1](factory.fromSpecific(head +: elements))
+    def apply[A, C1 <: C with immutable.Iterable[A]](
+      head: A,
+      elements: A*
+    )(implicit factory: scala.collection.Factory[A, C1]): NonEmpty[A, C1] =
+      unsafeApply[A, C1](factory.fromSpecific(head +: elements))
   }
 }
