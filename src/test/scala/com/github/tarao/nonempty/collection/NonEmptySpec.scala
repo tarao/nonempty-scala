@@ -170,9 +170,8 @@ class NonEmptySpec extends FunSpec
       ss shouldBe Seq(1, 2, 2, 3, 3, 3)
       val s = nel.mkString
       s shouldBe "123"
-      val l = nel.to(List)
-      l shouldBe a[List[_]]
-      l shouldBe List(1, 2, 3)
+      val n = nel.foldLeft(0)(_ + _)
+      n shouldBe 6
     }
 
     it("should be compatible with broader collection type") {
@@ -450,6 +449,80 @@ class NonEmptySpec extends FunSpec
 
   describe("Preserving non-emptiness") {
     describe("IterableOps") {
+      it("should preserve non-emptyness after .to()") {
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1.to(List)
+          val nel3: NonEmpty[Int, List[Int]] = nel2
+          typeEquals(nel2, nel3)
+          nel2.value shouldBe List(1, 2, 3)
+        }
+
+        locally {
+          val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+          val nel2 = nel1.to(immutable.BitSet)
+          val nel3: NonEmpty[Int, immutable.BitSet] = nel2
+          typeEquals(nel2, nel3)
+          nel2.value shouldBe immutable.BitSet(1, 2, 3)
+        }
+
+        locally {
+          val nel1 = NonEmpty[Vector[(Int, String)]](1 -> "foo", 2 -> "bar")
+          val nel2 = nel1.to(Map)
+          val nel3: NonEmpty[(Int, String), Map[Int, String]] = nel2
+          typeEquals(nel2, nel3)
+          nel2.value shouldBe Map(1 -> "foo", 2 -> "bar")
+        }
+
+        locally {
+          val nel1 = NonEmpty[Vector[Char]]('f', 'o', 'o')
+          val nel2 = nel1.to(immutable.WrappedString)
+          val nel3: NonEmpty[Char, immutable.WrappedString] = nel2
+          typeEquals(nel2, nel3)
+          nel2.value.unwrap shouldBe "foo"
+        }
+      }
+
+      it("should preserve non-emptyness after .toList") {
+        val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
+        val nel2 = nel1.toList
+        val nel3: NonEmpty[Int, List[Int]] = nel2
+        typeEquals(nel2, nel3)
+        nel2.value shouldBe List(1, 2, 3)
+      }
+
+      it("should preserve non-emptyness after .toVector") {
+        val nel1 = NonEmpty[List[Int]](1, 2, 3)
+        val nel2 = nel1.toVector
+        val nel3: NonEmpty[Int, Vector[Int]] = nel2
+        typeEquals(nel2, nel3)
+        nel2.value shouldBe Vector(1, 2, 3)
+      }
+
+      it("should preserve non-emptyness after .toMap") {
+        val nel1 = NonEmpty[Vector[(Int, String)]](1 -> "foo", 2 -> "bar")
+        val nel2 = nel1.toMap
+        val nel3: NonEmpty[(Int, String), Map[Int, String]] = nel2
+        typeEquals(nel2, nel3)
+        nel2.value shouldBe Map(1 -> "foo", 2 -> "bar")
+      }
+
+      it("should preserve non-emptyness after .toSeq") {
+        val nel1 = NonEmpty[Set[Int]](1, 2, 3)
+        val nel2 = nel1.toSeq
+        val nel3: NonEmpty[Int, Seq[Int]] = nel2
+        typeEquals(nel2, nel3)
+        nel2.value shouldBe Seq(1, 2, 3)
+      }
+
+      it("should preserve non-emptyness after .toIndexedSeq") {
+        val nel1 = NonEmpty[Set[Int]](1, 2, 3)
+        val nel2 = nel1.toIndexedSeq
+        val nel3: NonEmpty[Int, IndexedSeq[Int]] = nel2
+        typeEquals(nel2, nel3)
+        nel2.value shouldBe IndexedSeq(1, 2, 3)
+      }
+
       it("should preserve non-emptiness after .concat()") {
         val nel1 = NonEmpty[Vector[Int]](1, 2, 3)
         val nel2 = nel1.concat(Seq(4, 5, 6))
@@ -469,8 +542,8 @@ class NonEmptySpec extends FunSpec
         val grouped1 = nel.groupBy(_ % 2 == 0)
         val grouped2: NonEmpty[(Boolean, NonEmpty[Int, Seq[Int]]), immutable.Map[Boolean, NonEmpty[Int, Seq[Int]]]] = nel.groupBy(_ % 2 == 0)
         typeEquals(grouped1, grouped2)
-        grouped1(true).toSeq shouldBe Seq(2, 4, 6)
-        grouped1(false).toSeq shouldBe Seq(1, 3, 5)
+        grouped1(true).toSeq.value shouldBe Seq(2, 4, 6)
+        grouped1(false).toSeq.value shouldBe Seq(1, 3, 5)
       }
 
       it("should preserve non-emptiness after .groupMap()") {
@@ -479,8 +552,8 @@ class NonEmptySpec extends FunSpec
         val grouped2: NonEmpty[(Int, NonEmpty[String, Seq[String]]), immutable.Map[Int, NonEmpty[String, Seq[String]]]] = nel.groupMap(_.length)(s => s"$s (${s.length})")
         typeEquals(grouped1, grouped2)
         grouped1.size shouldBe 2
-        grouped1(3).toSeq shouldBe Seq("foo (3)", "bar (3)", "baz (3)")
-        grouped1(4).toSeq shouldBe Seq("hoge (4)")
+        grouped1(3).toSeq.value shouldBe Seq("foo (3)", "bar (3)", "baz (3)")
+        grouped1(4).toSeq.value shouldBe Seq("hoge (4)")
       }
 
       it("should preserve non-emptiness after .groupMapReduce()") {
@@ -499,8 +572,8 @@ class NonEmptySpec extends FunSpec
         val grouped2: Iterator[NonEmpty[Int, Vector[Int]]] = grouped1
         typeEquals(grouped1, grouped2)
         val vec = grouped1.toVector
-        vec(0).toSeq shouldBe Seq(1, 2)
-        vec(1).toSeq shouldBe Seq(3, 4)
+        vec(0).toSeq.value shouldBe Seq(1, 2)
+        vec(1).toSeq.value shouldBe Seq(3, 4)
       }
 
       it("should preserve non-emptiness after .map()") {
@@ -508,7 +581,7 @@ class NonEmptySpec extends FunSpec
         val nel2 = nel1.map(_.length)
         val nel3: NonEmpty[Int, Seq[Int]] = nel2
         typeEquals(nel2, nel3)
-        nel2.toSeq shouldBe Seq(4, 3, 3)
+        nel2.toSeq.value shouldBe Seq(4, 3, 3)
       }
 
       it("should preserve non-emptiness after .scan()") {
@@ -516,7 +589,7 @@ class NonEmptySpec extends FunSpec
         val nel2 = nel1.scan(0)(_ + _)
         val nel3: NonEmpty[Int, Vector[Int]] = nel2
         typeEquals(nel2, nel3)
-        nel2.toSeq shouldBe Seq(0, 1, 3, 6, 10)
+        nel2.toSeq.value shouldBe Seq(0, 1, 3, 6, 10)
       }
 
       it("should preserve non-emptiness after .scanLeft()") {
@@ -524,7 +597,7 @@ class NonEmptySpec extends FunSpec
         val nel2 = nel1.scanLeft("")(_ + _.toString)
         val nel3: NonEmpty[String, Vector[String]] = nel2
         typeEquals(nel2, nel3)
-        nel2.toSeq shouldBe Seq("", "1", "12", "123", "1234")
+        nel2.toSeq.value shouldBe Seq("", "1", "12", "123", "1234")
       }
 
       it("should preserve non-emptiness after .scanRight()") {
@@ -532,7 +605,7 @@ class NonEmptySpec extends FunSpec
         val nel2 = nel1.scanRight("")(_.toString + _)
         val nel3: NonEmpty[String, Vector[String]] = nel2
         typeEquals(nel2, nel3)
-        nel2.toSeq shouldBe Seq("1234", "234", "34", "4", "")
+        nel2.toSeq.value shouldBe Seq("1234", "234", "34", "4", "")
       }
 
       it("should preserve non-emptiness after .sliding()") {
@@ -575,8 +648,8 @@ class NonEmptySpec extends FunSpec
         val nel5: NonEmpty[Int, Vector[Int]] = nel3
         typeEquals(nel2, nel4)
         typeEquals(nel3, nel5)
-        nel2.toSeq shouldBe Seq("hoge", "foo", "bar")
-        nel3.toSeq shouldBe Seq(4, 3, 3)
+        nel2.toSeq.value shouldBe Seq("hoge", "foo", "bar")
+        nel3.toSeq.value shouldBe Seq(4, 3, 3)
       }
 
       it("should preserve non-emptiness after .unzip3()") {
@@ -592,9 +665,9 @@ class NonEmptySpec extends FunSpec
         typeEquals(nel2, nel5)
         typeEquals(nel3, nel6)
         typeEquals(nel4, nel7)
-        nel2.toSeq shouldBe Seq("hoge", "foo", "bar")
-        nel3.toSeq shouldBe Seq(4, 3, 3)
-        nel4.toSeq shouldBe Seq('h', 'f', 'b')
+        nel2.toSeq.value shouldBe Seq("hoge", "foo", "bar")
+        nel3.toSeq.value shouldBe Seq(4, 3, 3)
+        nel4.toSeq.value shouldBe Seq('h', 'f', 'b')
       }
 
       it("should preserve non-emptiness after .zipAll()") {
@@ -606,8 +679,8 @@ class NonEmptySpec extends FunSpec
         val zipped4: NonEmpty[(Int, String), Vector[(Int, String)]] = zipped2
         typeEquals(zipped1, zipped3)
         typeEquals(zipped2, zipped4)
-        zipped1.toSeq shouldBe Seq("hoge" -> 4, "foo" -> 3, "baz" -> 3)
-        zipped2.toSeq shouldBe Seq(4 -> "hoge", 3 -> "foo", 3 -> "baz")
+        zipped1.toSeq.value shouldBe Seq("hoge" -> 4, "foo" -> 3, "baz" -> 3)
+        zipped2.toSeq.value shouldBe Seq(4 -> "hoge", 3 -> "foo", 3 -> "baz")
       }
 
       it("should preserve non-emptiness after .zipWithIndex()") {
@@ -615,7 +688,7 @@ class NonEmptySpec extends FunSpec
         val zipped1 = nel1.zipWithIndex
         val zipped2: NonEmpty[(String, Int), Vector[(String, Int)]] = zipped1
         typeEquals(zipped1, zipped2)
-        zipped1.toSeq shouldBe Seq("hoge" -> 0, "foo" -> 1)
+        zipped1.toSeq.value shouldBe Seq("hoge" -> 0, "foo" -> 1)
       }
     }
 

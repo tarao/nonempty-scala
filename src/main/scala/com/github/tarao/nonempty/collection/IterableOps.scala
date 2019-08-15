@@ -29,6 +29,35 @@ import scala.language.higherKinds
 trait IterableOps[+A, +C <: Iterable[A]] extends Any {
   self: NonEmpty[A, C] =>
 
+  /** Given a collection factory `factory`, convert this collection to
+    * the appropriate representation for the current element type
+    * `A`.
+    */
+  def to[B >: A, C2 <: immutable.Iterable[B]](
+    factory: scala.collection.Factory[A, C2]
+  ): NonEmpty[B, C2] = unsafeApply[B, C2](value.to(factory))
+
+  def toList: NonEmpty[A, immutable.List[A]] =
+    unsafeApply[A, immutable.List[A]](value.toList)
+
+  def toVector: NonEmpty[A, immutable.Vector[A]] =
+    unsafeApply[A, immutable.Vector[A]](value.toVector)
+
+  def toMap[K, V](implicit
+    ev: A <:< (K, V)
+  ): NonEmpty[(K, V), immutable.Map[K, V]] =
+    unsafeApply[(K, V), immutable.Map[K, V]](value.toMap)
+
+  /**
+    * @return This collection as a `NonEmpty[A, Seq[A]]`. This is
+    *         equivalent to `to(Seq)` but might be faster.
+    */
+  def toSeq: NonEmpty[A, immutable.Seq[A]] =
+    unsafeApply[A, immutable.Seq[A]](value.toSeq)
+
+  def toIndexedSeq: NonEmpty[A, immutable.IndexedSeq[A]] =
+    unsafeApply[A, immutable.IndexedSeq[A]](value.toIndexedSeq)
+
   /** Returns a new $coll containing the elements from the left hand
     * operand followed by the elements from the right hand
     * operand. The element type of the $coll is the most specific
