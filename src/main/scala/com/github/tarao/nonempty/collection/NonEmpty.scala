@@ -57,9 +57,11 @@ object NonEmpty extends AnyRef
   @inline override protected def unsafeApply[A, C <: Iterable[A]](it: C) : NonEmpty[A, C] =
     new NonEmpty[A, C](it)
 
-  @inline override protected def unsafeImmutableApply[A, C <: Iterable[A]](
+  @inline override protected def safeApply[A, C <: Iterable[A]](
     it: C
   ): Option[NonEmpty[A, C]] = it match {
+    case _ if it.isEmpty =>
+      None
     case _: immutable.Iterable[_] =>
       Some(unsafeApply[A, C](it))
     case _ =>
