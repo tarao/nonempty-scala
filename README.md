@@ -22,7 +22,7 @@ For Scala 2.13 :
 ```scala
     libraryDependencies ++= Seq(
       ...
-      "com.github.tarao" %% "nonempty" % "0.1.0"
+      "com.github.tarao" %% "nonempty" % "0.2.0"
     )
 ```
 
