@@ -9,6 +9,7 @@ class NonEmptyFromOutsideSpec extends FunSpec
   describe("A value of NonEmpty") {
     it("cannot be directly instantiated from outside") {
       assertTypeError("val ne = new NonEmpty[Int](Seq(1))")
+      assertTypeError("val ne = new nonempty.collection.NonEmpty[Int, Seq[Int]](Seq(1))")
     }
   }
 }

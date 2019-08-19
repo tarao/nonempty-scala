@@ -34,6 +34,7 @@ lazy val nonempty = (project in file(".")).
       "-implicits",
       "-groups"
     ),
+    autoAPIMappings := true,
 
     // Publishing
     publishMavenStyle := true,
