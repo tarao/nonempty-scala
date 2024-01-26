@@ -11,7 +11,7 @@ lazy val nonempty = (project in file(".")).
 
     // Depenency
     libraryDependencies ++= Seq(
-      "eu.timepit"    %% "refined"   % "0.9.16",
+      "eu.timepit"    %% "refined"   % "0.11.1",
       "org.scalatest" %% "scalatest" % "3.0.8" % "test"
     ),
 
